@@ -1,6 +1,6 @@
 {
   "name": "lightleak",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A first-person puzzle game about a camera whose photographs become real objects.",
   "private": true,
   "main": "desktop/main.js",
