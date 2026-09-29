@@ -522,8 +522,17 @@ async function boot() {
   startLevel(progress.last && G.defs[progress.last] ? progress.last : G.order[0], { quiet: true });
   showMenu();
   requestAnimationFrame(frame);
+  if (new URLSearchParams(location.search).has('shots')) {
+    // README screenshots: npm run shots stages each one and captures it
+    const S = await import('./shots.js');
+    $('menu').hidden = true;
+    window.__shotNames = S.SHOT_NAMES;
+    window.__stage = S.stage;
+  }
 }
 boot().catch(e => { console.error(e); $('menu-msg').hidden = false; $('menu-msg').textContent = `Couldn't start: ${e.message}`; });
 
 // Handy for poking at the game from the dev console.
-window.lightleak = { G, P, tick, startLevel, pushUndo, input: () => liveInput(), setDriver: d => { driver = d; }, look: (yaw, pitch) => { live.yaw = yaw; live.pitch = pitch; }, act, get editor() { return editor; } };
+window.lightleak = { G, P, tick, startLevel, pushUndo, input: () => liveInput(), setDriver: d => { driver = d; }, look: (yaw, pitch) => { live.yaw = yaw; live.pitch = pitch; }, act, get editor() { return editor; },
+  // render right now and finish any pending photo thumbnail (used when staging screenshots)
+  thumbNow: () => { syncCamera(); renderFrame(); if (G.pendingThumb) finishThumb(); } };

@@ -23,7 +23,7 @@ export function storyReset() {
 }
 
 export function storyEvent(name) {
-  if (G.headless || !G.L) return;
+  if (G.headless || G.shots || !G.L) return;
   if (PROGRESS.has(name) || /^cut/.test(name)) idle = 0;
   if (name.startsWith('nudge')) document.getElementById('fi-hint')?.classList.remove('quiet');
   const lines = G.L.def.story?.[name];

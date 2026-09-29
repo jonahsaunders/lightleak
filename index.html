@@ -210,6 +210,11 @@
   #rv-legend { color: var(--dim); font: 12px var(--mono); margin: 6px 0 12px; line-height: 1.7; }
   .rv-row { display: grid; grid-template-columns: 70px 1fr 50px 2fr auto; gap: 8px; align-items: center; font: 12px var(--mono); padding: 5px 0; border-bottom: 1px solid #2a2320; }
   .rv-row .ok { color: var(--ok); } .rv-row .bad { color: var(--bad); }
+  #shot-title { position: fixed; left: 64px; bottom: 64px; display: flex; gap: 22px; align-items: center; text-shadow: 0 4px 24px #000; }
+  #shot-title img { width: 108px; height: 108px; filter: drop-shadow(0 8px 24px #000c); }
+  #shot-title .w { font: 900 88px/0.95 var(--ui); letter-spacing: -.02em; }
+  #shot-title .w span { color: var(--safe); }
+  #shot-title .t { font: 500 22px/1.35 var(--ui); color: #efe6d2dd; margin-top: 10px; }
   #test-report { position: fixed; inset: 0; margin: 0; padding: 24px; font: 14px/1.6 var(--mono); background: var(--ink); white-space: pre-wrap; overflow: auto; }
 
   /* editor */
@@ -273,6 +278,7 @@
   <div id="ed-panel"></div>
 </div>
 
+<div id="shot-title" hidden><img src="desktop/icon.png" alt=""><div><div class="w">Light<span>leak</span></div><div class="t">A first-person puzzle game about a camera<br>whose photographs become real.</div></div></div>
 <div id="vignette"></div>
 <div id="grain"></div>
 

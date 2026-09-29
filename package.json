@@ -13,7 +13,8 @@
     "dist": "electron-builder --win",
     "dist:mac": "electron-builder --mac",
     "web": "node tools/webbuild.js",
-    "icon": "node tools/icon.js"
+    "icon": "node tools/icon.js",
+    "shots": "electron . --shots"
   },
   "engines": {
     "node": ">=18"
