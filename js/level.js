@@ -5,6 +5,10 @@ import { MAT, PRINT_TEX, worldBox, propMaterial, canvasTexture } from './materia
 import { DT, GRAVITY, DENSITY, UNDO_DEPTH } from './config.js';
 import { createPlayer, P, placePlayer } from './player.js';
 import { SFX } from './audio.js';
+import { createBoss, stepBoss, bossState, restoreBoss } from './boss.js';
+import { storyEvent } from './story.js';
+import { cardTexture } from './materials.js';
+import { dressRoom, doorFrame, glassFrame, ceilingPanel, dust, tray, plateVisual } from './dressing.js';
 
 const THREE = window.THREE;
 const V3 = THREE.Vector3;
@@ -25,9 +29,13 @@ export function loadLevel(def, { keepUndo = false } = {}) {
     def, world, group: new THREE.Group(), colliders: new Map(),
     statics: [], props: [], plates: [], rayMeshes: [], door: null, exit: null,
     film: { pos: def.film?.pos ?? 0, neg: def.film?.neg ?? 0 },
-    killY: def.killY ?? -8, finished: false, propSeq: 0, time: 0,
+    killY: def.killY ?? -8, finished: false, propSeq: 0, time: 0, boss: null, cards: [], animate: [],
   };
   G.scene.add(L.group);
+  // atmosphere: the archive is dark; the way out is not
+  const sky = def.bright ? 0xf7efe2 : 0x0b0908;
+  G.scene.background.setHex(sky); G.scene.fog.color.setHex(sky);
+  G.scene.fog.near = def.bright ? 4 : 28; G.scene.fog.far = def.bright ? 46 : 70;
   buildRoom(def.room);
   for (const b of def.blocks || []) addBlock(b.min, b.max, b.mat || 'ledge', b);
   for (const p of def.plates || []) addPlate(p);
@@ -39,9 +47,11 @@ export function loadLevel(def, { keepUndo = false } = {}) {
   for (const l of def.lights || []) addLight(l);
   for (const d of def.decor || []) addDecor(d);
   lightRoom(def.room);
+  dressLevel(def);
+  if (def.boss) createBoss(def.boss);
   createPlayer(world);
   placePlayer(def.spawn.pos, def.spawn.yaw * Math.PI / 180);
-  if (!L.plates.length) openDoor(true);
+  if (!L.plates.length && !def.boss) openDoor(true);
   G.roll.length = 0; G.selected = -1; G.filmMode = L.film.pos > 0 || !L.film.neg ? 'pos' : 'neg'; G.frameIdx = 0; G.aim = false;
   if (!keepUndo) G.undo.length = 0;
   world.step(); // lets scene queries see every collider straight away
@@ -63,10 +73,9 @@ export function unloadLevel() {
 }
 
 function meshFor(min, max, mat) {
-  const w = max[0] - min[0], h = max[1] - min[1], d = max[2] - min[2];
   const m = Array.isArray(mat) ? mat.map(k => MAT[k]) : MAT[mat];
-  const mesh = new THREE.Mesh(worldBox(w, h, d), m);
-  mesh.position.set(min[0] + w / 2, min[1] + h / 2, min[2] + d / 2);
+  const mesh = new THREE.Mesh(worldBox(min, max), m);
+  mesh.position.set((min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2);
   mesh.receiveShadow = true;
   return mesh;
 }
@@ -85,8 +94,8 @@ export function addBlock(min, max, mat = 'wall', src = null) {
   mesh.castShadow = !!(src && src.cast !== false && kind === 'static') || mat === 'emulsion';
   if (kind === 'emulsion') { mesh.material = MAT.emulsion.clone(); mesh.userData.ownMaterial = true; }
   if (kind === 'glass') {
-    mesh.receiveShadow = false; mesh.renderOrder = 2;
-    mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry), new THREE.LineBasicMaterial({ color: 0x8fa9a3, transparent: true, opacity: 0.45 })));
+    mesh.receiveShadow = false; mesh.renderOrder = 2; mesh.userData.noAO = true;
+    if (src !== null) glassFrame(min, max);
   }
   const s = { id: L.statics.length, kind, min: new V3(...min), max: new V3(...max), mesh, collider: staticCollider(min, max), erased: false, src };
   mesh.userData.kind = kind; mesh.userData.solid = s;
@@ -111,7 +120,9 @@ function buildRoom(r) {
   if (dy > wb) S([dx - dw / 2, wb, z0 - t], [dx + dw / 2, dy, z0]);
   // corridor behind the door
   const cw = dw + 1, len = 4, cz = z0 - t - len, ch = dh + 0.4;
-  S([dx - cw / 2 - t, dy - t, cz - t], [dx + cw / 2 + t, dy, z0], 'floor');
+  // stops at the wall: the doorway strip is already floored (room floor, sill or ledge), and
+  // two floors in the same place would flicker
+  S([dx - cw / 2 - t, dy - t, cz - t], [dx + cw / 2 + t, dy, z0 - t], 'floor');
   S([dx - cw / 2 - t, dy + ch, cz - t], [dx + cw / 2 + t, dy + ch + t, z0 - t], 'ceil');
   S([dx - cw / 2 - t, dy, cz], [dx - cw / 2, dy + ch, z0 - t]);
   S([dx + cw / 2, dy, cz], [dx + cw / 2 + t, dy + ch, z0 - t]);
@@ -134,7 +145,7 @@ function buildRoom(r) {
   const cy = dy + hy, czd = z0 - t / 2;
   const body = L.world.createRigidBody(R.RigidBodyDesc.kinematicPositionBased().setTranslation(dx, cy, czd));
   const collider = L.world.createCollider(R.ColliderDesc.cuboid(hx, hy, hz), body);
-  const mesh = new THREE.Mesh(worldBox(dw, dh, 0.3), MAT.door);
+  const mesh = new THREE.Mesh(worldBox([dx - hx, dy, czd - hz], [dx + hx, dy + dh, czd + hz]), MAT.door);
   mesh.position.set(dx, cy, czd); mesh.receiveShadow = true; mesh.userData.kind = 'door';
   L.group.add(mesh); L.rayMeshes.push(mesh);
   L.door = { body, collider, mesh, base: cy, h: dh, t: 0, open: false, x: dx, z: czd };
@@ -159,10 +170,7 @@ function lightRoom(r) {
 function addLight(l) {
   const L = G.L;
   const [x, y, z] = l.pos;
-  if (l.panel) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(l.w || 2, 0.05, l.d || 1), MAT.panel);
-    m.position.set(x, y - 0.03, z); L.group.add(m);
-  }
+  if (l.panel) ceilingPanel(x, y, z, l.w || 2, l.d || 1, l.floorY ?? 0);
   const color = l.color ? parseInt(l.color.replace('#', ''), 16) : 0xffe2bc;
   const light = new THREE.PointLight(color, l.intensity ?? 0.9, l.dist ?? 14, 2);
   light.position.set(x, l.panel ? y - 0.4 : y, z);
@@ -179,11 +187,7 @@ function addDecor(d) {
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
       const leg = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.9, 0.07), MAT.metal); leg.position.set(sx * (len / 2 - 0.1), 0.45, sz * 0.35); g.add(leg);
     }
-    for (let i = 0; i < Math.floor(len / 0.8); i++) {
-      const tx = -len / 2 + 0.45 + i * 0.8;
-      const tray = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.07, 0.48), MAT.tray); tray.position.set(tx, 0.975, 0); g.add(tray);
-      const liq = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.02, 0.4), MAT.liquid); liq.position.set(tx, 1.0, 0); g.add(liq);
-    }
+    for (let i = 0; i < Math.floor(len / 0.8); i++) tray(g, -len / 2 + 0.45 + i * 0.8, 0.94, 0);
     g.position.set(x, y, z); g.rotation.y = rot;
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     L.group.add(g);
@@ -198,6 +202,14 @@ function addDecor(d) {
     const hit = new THREE.Mesh(new THREE.BoxGeometry(hx * 2, 1.02, hz * 2), new THREE.MeshBasicMaterial({ visible: false }));
     hit.position.set(x, y + 0.51, z); hit.userData.kind = 'static'; hit.userData.solid = solid; hit.userData.decor = d;
     L.group.add(hit); L.rayMeshes.push(hit);
+  } else if (d.kind === 'card') {
+    // an index card pinned to a wall: look at it up close to read it
+    const tex = cardTexture(d.title || '');
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.23), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }));
+    m.userData.ownMaterial = true; m.userData.ownMap = true; m.userData.card = d;
+    m.position.set(...d.pos); m.rotation.y = THREE.MathUtils.degToRad(d.rot || 0);
+    m.rotation.z = (((d.pos[0] * 13 + d.pos[2] * 7) % 5) - 2) * 0.025;
+    L.group.add(m); L.cards.push(m);
   } else if (d.kind === 'line') {
     const a = new V3(...d.from), b = new V3(...d.to);
     const geo = new THREE.BufferGeometry().setFromPoints([a, b]);
@@ -213,6 +225,19 @@ function addDecor(d) {
       L.group.add(m);
     }
   }
+}
+
+// Trim, signage and atmosphere, kept clear of cards, fixtures and the door.
+function dressLevel(def) {
+  const r = def.room, L = G.L;
+  const avoid = [[r.x0, (r.z0 + r.z1) / 2], [r.x1, (r.z0 + r.z1) / 2]];
+  for (const d of def.decor || []) if (d.kind === 'card') avoid.push([d.pos[0], d.pos[2]]);
+  dressRoom(r, avoid);
+  const i = G.order.indexOf(def.id);
+  const label = i >= 0 ? [[`ROOM ${String(i + 1).padStart(2, '0')}`, 96], [def.name.toUpperCase(), 44, 700]] : [[def.name.toUpperCase(), 64]];
+  doorFrame(r, label);
+  const vol = (r.x1 - r.x0) * (r.z1 - r.z0) * r.h;
+  L.animate.push(dust(r, Math.round(vol * 0.25)));
 }
 
 // ---------- props ----------
@@ -280,17 +305,17 @@ function addPlate(def) {
   const L = G.L;
   const [x, y, z] = def.pos, [w, d] = def.size;
   const min = [x - w / 2, y, z - d / 2], max = [x + w / 2, y + 0.08, z + d / 2];
-  const mat = new THREE.MeshStandardMaterial({ color: 0x3a1a14, emissive: 0xd8452f, emissiveIntensity: 0.3, roughness: 0.5, metalness: 0.3 });
-  const mesh = meshFor(min, max, 'wall');
-  mesh.material = mat; mesh.userData.ownMaterial = true; mesh.userData.kind = 'plate';
+  const mat = new THREE.MeshStandardMaterial({ color: 0x3a1a14, emissive: 0xd8452f });
+  const mesh = plateVisual(min, max, mat);
+  mesh.userData.ownMaterial = true; mesh.userData.kind = 'plate';
   const collider = staticCollider(min, max);
   const { canvas, tex } = canvasTexture(256, 128);
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
-  sprite.userData.ownMaterial = true; sprite.userData.ownMap = true;
+  sprite.userData.ownMaterial = true; sprite.userData.ownMap = true; sprite.userData.noAO = true;
   sprite.scale.set(1.6, 0.8, 1);
   sprite.position.set(x, y + (def.label ?? 2.5), z);
   L.group.add(mesh, sprite); L.rayMeshes.push(mesh);
-  const p = { need: def.need, max: def.max ?? null, load: 0, shown: -1, on: false, collider, mesh, mat, canvas, tex };
+  const p = { need: def.need, max: def.max ?? null, load: 0, shown: -1, on: false, collider, mesh, mat, canvas, tex, baseY: mesh.position.y };
   L.colliders.set(collider.handle, { kind: 'plate', ref: p });
   L.plates.push(p);
   drawPlate(p);
@@ -347,6 +372,7 @@ export function openDoor(quiet) {
   if (d.open) return;
   d.open = true;
   if (!quiet) { SFX.door(); emit('toast', 'The door is open.'); }
+  storyEvent('door');
 }
 
 // ---------- the tick ----------
@@ -354,10 +380,13 @@ export function stepWorld() {
   const L = G.L;
   L.world.step();
   L.time += DT;
+  stepBoss(); // before props record this tick's velocity: it needs to see what was falling
   for (const p of L.props.slice()) {
     const v = p.body.linvel().y;
     if (p.lastVy < -6 && v > p.lastVy + 4 && !G.headless) SFX.land(-p.lastVy / 6);
     p.lastVy = v;
+    // recent peak falling speed: with CCD, contact can show up a tick after the object has stopped
+    p.fallVy = Math.min(v, (p.fallVy || 0) * 0.8);
     syncProp(p);
     if (p.flash > 0) { p.flash = Math.max(0, p.flash - DT * 2.5); p.mesh.material.emissive.setRGB(p.flash, p.flash * 0.9, p.flash * 0.8); }
     if (p.mesh.position.y < L.killY - 30) removeProp(p);
@@ -366,14 +395,15 @@ export function stepWorld() {
   for (const p of L.plates) {
     p.load = plateLoad(p);
     const on = p.load >= p.need - 1e-6 && (p.max == null || p.load <= p.max + 1e-6);
-    if (on && !p.on && !G.headless) SFX.plate();
+    if (on && !p.on) { if (!G.headless) SFX.plate(); storyEvent('plate'); }
     p.on = on;
     if (!on) all = false;
     p.mat.emissive.setHex(on ? 0x8fc27a : 0xd8452f);
+    p.mesh.position.y += ((on ? p.baseY - 0.03 : p.baseY) - p.mesh.position.y) * 0.2; // the pad sinks under load
     const shown = Math.round(p.load * 10) * 2 + (on ? 1 : 0);
     if (shown !== p.shown) { p.shown = shown; drawPlate(p); }
   }
-  if (all) openDoor(G.headless);
+  if (all && !L.boss) openDoor(G.headless); // the boss opens its own door
   const d = L.door;
   if (d.open && d.t < 1) {
     d.t = Math.min(1, d.t + DT / 1.1);
@@ -403,6 +433,7 @@ export function snapshot() {
     roll: G.roll.map(ph => ({ ...ph })),
     filmMode: G.filmMode,
     player: { pos: P.pos.toArray(), vel: P.vel.toArray(), yaw: P.yaw, pitch: P.pitch },
+    boss: bossState(),
   };
 }
 export function pushUndo() {
@@ -423,6 +454,7 @@ export function restore(s) {
   G.selected = -1; G.filmMode = s.filmMode;
   placePlayer(s.player.pos, s.player.yaw, s.player.pitch);
   P.vel.fromArray(s.player.vel);
+  restoreBoss(s.boss);
   L.world.step();
   for (const p of L.props) syncProp(p);
   G.scene.updateMatrixWorld(true);

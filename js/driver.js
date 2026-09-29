@@ -8,6 +8,7 @@ import { G } from './state.js';
 import { DT, PLAYER } from './config.js';
 import { P } from './player.js';
 import { loadLevel } from './level.js';
+import { auditLevel } from './audit.js';
 
 const THREE = window.THREE;
 
@@ -151,6 +152,10 @@ export async function runTests(tick, ids = null) {
     try {
       const r = await play(def);
       results.push(r.finished ? { id, ok: true, seconds: r.ticks * DT } : { id, ok: false, why: r.error || 'did not finish' });
+      // No flickering surfaces anywhere a player can see.
+      loadLevel(def);
+      const flicker = auditLevel();
+      results.push(flicker.length ? { id: `${id} ◫`, ok: false, why: `${flicker.length} z-fighting spot(s): ${flicker.slice(0, 3).join('; ')}` } : { id: `${id} ◫`, ok: true, seconds: 0, note: 'no z-fighting' });
       // Shortcuts the design means to rule out: each must NOT finish the level.
       for (const [i, bad] of (def.mustFail || []).entries()) {
         const b = await play(def, bad.steps);

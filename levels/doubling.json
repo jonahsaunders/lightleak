@@ -277,5 +277,11 @@
         }
       ]
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "Copies of copies come out exactly the same, if you stand exactly where you stood.",
+      "I have eleven thousand prints of the same Tuesday afternoon. It was a good afternoon."
+    ]
+  }
 }

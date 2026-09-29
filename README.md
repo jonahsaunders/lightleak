@@ -2,7 +2,7 @@
 
 A first-person puzzle game. Your only tool is a camera. Photograph something and it goes onto your roll. Develop the photo, and a copy appears where you're looking, **at the size it looked in the picture**: shot up close and developed far away, it comes out huge; shot from across the room and developed at your feet, it comes out tiny.
 
-Fifteen puzzles in three chapters, a level editor, and an automated test that plays every level.
+You wake up on the floor of a drying room. The archive's caretaker, the Curator, would like you back on the line. Eighteen levels: a prologue, fifteen puzzles in three chapters, a boss fight and a way out. There's also a level editor and an automated test that plays every level.
 
 ## Running it
 
@@ -47,9 +47,30 @@ Mouse sensitivity is on the title screen.
 
 ## The chapters
 
+0. **Prologue**: Drying Room.
 1. **Exposure**: Exposure, Depth of Field, Wide Angle, Ascent, Overhang. The basic scaling.
 2. **Composition**: Group Shot, Doubling, Staircase, Turnaround, Terrace. Several objects in one photo, and turning photos.
 3. **Negative**: Negative, Clearance, Undercut, Window, Darkroom. Dissolving things.
+4. **Fixing**: The Enlarger (the final fight), then Daylight.
+
+## The story
+
+The archive is an automated photographic collection run by the Curator: a soft-spoken, fastidious caretaker that preserves things by photographing them. It preserved the staff the same way. You are a print, the sixteenth copy of a staff member called Wren Adeyemi, who came loose from the drying line. The Curator talks you through the puzzles as "calibration", and index cards pinned to the walls (look at one up close to read it) fill in the rest. It gets less friendly once you start dissolving things.
+
+**The Enlarger.** The last room is a giant enlarger's easel, and you're standing on it. Every few seconds the Curator locks onto where you are, shows a red ring and fires a flash. If you're caught in the open, you're rewound to just after your last action. Anything solid between you and the lens blocks it; glass doesn't. To win:
+
+1. Load all three plates to slide its shutter open.
+2. Dissolve the emulsion lid over its bulb with a negative.
+3. Develop something heavy (10 t or more) against the ceiling so it drops onto the bulb. Do it three times.
+
+Lines live in each level's `story` field and play once per visit on events: `start`, `photo`, `negative`, `develop`, `dissolve`, `plate`, `door`, `fall`, `undo`, `zone:<name>`, and the boss's `dodged`, `overexposed`, `phase2`, `phase3`, `hit1`, `hit2` and `defeated`. Cards are `decor` entries with `"kind": "card"`, a `title` and `text`.
+
+## How it looks
+
+- **Materials** are painted in code as height, colour and roughness; normal maps come from the height. Wall and floor textures span 4 m with 1 m panels, tile seamlessly, and are mapped in world space, so the grid runs unbroken across every surface and still works as a ruler.
+- **Architecture** is added automatically to every room: wainscot panelling with a rail, baseboards, a cornice, pilaster ribs, a framed exit door with the room's name stencilled beside it, framed glass, recessed ceiling panels with soft light shafts, and drifting dust.
+- **Rendering** goes through ambient occlusion, bloom, a filmic grade and SMAA anti-aliasing, with reflections from a generated environment map. The title screen's **Graphics** setting picks High (all of it), Medium (no ambient occlusion) or Low (plain rendering).
+- **No flicker.** Two surfaces sharing a plane flicker (z-fighting). Trim stands proud of walls, runs stop short at corners, decals sit off the wall, and `npm test` audits every level for coplanar faces a player could see.
 
 ## Making levels
 
@@ -69,7 +90,7 @@ Levels are JSON in `levels/`, listed in play order in `levels/index.json`. A lev
 
 Each level carries a `solution`, either scripted steps (`walk`, `shoot`, `develop`, `wait`, `exit`, with options like `frame`, `film`, `rot`, `jumpAt`) or a recorded `demo` of raw input. The simulation runs at a fixed 60 Hz and is deterministic, so a recording replays exactly. A level can also list `mustFail` shortcuts, scripts that must *not* finish it: for example, jumping the Overhang gap without a plank, or putting the too-light crate in Window's cubby.
 
-`npm test` runs all of them: currently 15 solutions and 6 blocked shortcuts. Open `/?test` in a browser for the same report.
+`npm test` runs all of them: currently 18 solutions, 7 blocked shortcuts, and a z-fighting audit of every level. Open `/?test` in a browser for the same report.
 
 ## Project layout
 
@@ -99,6 +120,8 @@ Run `npm run web` and upload `build/lightleak-web.zip` as an HTML project with "
 
 ## Originality
 
-The idea of a camera that copies objects into photos was explored in a cancelled Valve prototype. Game mechanics aren't protected by copyright, but specific expression is. This project is written from scratch and deliberately takes nothing from that work or from the Portal series: no Valve code, assets, names, characters, setting, sounds or leaked material, and none was used as reference. The setting, puzzles, UI, text and name are original; textures are drawn at runtime, sounds are synthesised, and the icon is generated by `tools/icon.js`. Third-party code is listed in [LICENSES.md](LICENSES.md).
+The idea of a camera that copies objects into photos was explored in a cancelled Valve prototype. Game mechanics aren't protected by copyright, but specific expression is. This project is written from scratch and deliberately takes nothing from that work or from the Portal series: no Valve code, assets, names, characters, setting, sounds or leaked material, and none was used as reference. The setting, story, characters, dialogue, puzzles, art direction, UI and name are original; the look is a darkroom (warm concrete, dark steel, red safelights), deliberately unlike Portal's white panels and orange-and-blue; textures are drawn at runtime, sounds are synthesised, and the icon is generated by `tools/icon.js`. Third-party code is listed in [LICENSES.md](LICENSES.md).
+
+The story follows a common genre shape (a lone survivor in a facility, a guiding voice that turns out to have its own agenda, a final confrontation), which many games share and nobody owns. What's protected is specific expression, and none of Portal's is used here: no testing framing, no sarcastic AI, no cake, turrets or cubes. The Curator is a different character, the story is about photographs and copies, and the fight is built from this game's own mechanics.
 
 If you take this further commercially, don't market it by reference to Valve's project or Portal, and check that the name "Lightleak" is clear to trademark where you'll sell it.

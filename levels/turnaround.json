@@ -173,6 +173,17 @@
       ],
       "rot": 90,
       "len": 3
+    },
+    {
+      "kind": "card",
+      "pos": [
+        -6.99,
+        1.7,
+        2
+      ],
+      "rot": 90,
+      "title": "Note, left pocket",
+      "text": "It can only keep what it can see.\nSo don't stand in the light.\n\u2014 W.A."
     }
   ],
   "spawn": {
@@ -227,5 +238,11 @@
     {
       "exit": true
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "If it doesn't fit, turn it. People are the same.",
+      "You keep turning them, gently, until they fit."
+    ]
+  }
 }

@@ -1,6 +1,12 @@
 {
   "chapters": [
     {
+      "name": "Prologue",
+      "levels": [
+        "drying-room"
+      ]
+    },
+    {
       "name": "Exposure",
       "levels": [
         "exposure",
@@ -28,6 +34,13 @@
         "undercut",
         "window",
         "darkroom"
+      ]
+    },
+    {
+      "name": "Fixing",
+      "levels": [
+        "enlarger",
+        "daylight"
       ]
     }
   ]

@@ -8,6 +8,7 @@ import { CAMERA, NAMES } from './config.js';
 import { addProp, removeProp, eraseStatic, pushUndo, propMass } from './level.js';
 import { P } from './player.js';
 import { SFX } from './audio.js';
+import { storyEvent } from './story.js';
 
 const THREE = window.THREE;
 const V3 = THREE.Vector3, Q = THREE.Quaternion;
@@ -127,6 +128,7 @@ export function takePhoto() {
   if (!G.headless) { G.pendingThumb = photo; SFX.shutter(); emit('flash'); }
   emit('rollChanged');
   emit('acted');
+  storyEvent(neg ? 'negative' : 'photo');
   return true;
 }
 
@@ -269,6 +271,7 @@ export function develop() {
     }
     if (!G.headless) SFX.develop();
   }
+  storyEvent(photo.neg ? 'dissolve' : 'develop');
   G.roll.splice(G.selected, 1);
   G.selected = -1;
   emit('rollChanged');

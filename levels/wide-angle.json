@@ -198,5 +198,11 @@
     {
       "exit": true
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "Distance makes things small. That's the whole secret of an archive.",
+      "Step back far enough and anything will fit in a drawer."
+    ]
+  }
 }

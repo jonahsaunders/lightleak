@@ -44,4 +44,13 @@ export const SFX = {
   undo() { tone(700, 350, 0.18, 'sine', 0.08); },
   fall() { noise(0.4, 600, 0.4, 0.25); },
   done() { [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.3, 'triangle', 0.1, i * 0.09)); },
+  // the Curator's voice: soft typewriter chirps, one per couple of letters
+  voice(pitch = 1) { tone(420 * pitch, 380 * pitch, 0.045, 'sine', 0.035); },
+  card() { noise(0.08, 3000, 0.7, 0.12); },
+  // the enlarger
+  charge(t) { tone(200, 900, t, 'sawtooth', 0.035); },
+  flash() { noise(0.5, 5000, 0.4, 0.9); tone(1800, 200, 0.5, 'sine', 0.12); },
+  boom() { noise(1.2, 90, 0.6, 1); tone(60, 30, 1.2, 'sawtooth', 0.12); },
+  shutter2() { noise(0.6, 400, 0.8, 0.7); tone(120, 240, 0.6, 'square', 0.04); },
+  dying() { [880, 660, 440, 330, 220, 110].forEach((f, i) => tone(f, f * 0.7, 0.5, 'sine', 0.08, i * 0.35)); },
 };

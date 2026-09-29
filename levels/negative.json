@@ -116,5 +116,14 @@
     {
       "exit": true
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "Ah. You've found the negatives.",
+      "Please don't. Negatives are for reference. They're not for taking things away."
+    ],
+    "dissolve": [
+      "That was part of the collection."
+    ]
+  }
 }

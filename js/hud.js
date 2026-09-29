@@ -3,6 +3,7 @@ import { G } from './state.js';
 import { CAMERA, NAMES } from './config.js';
 import { framedProps, solvePlacement, frameRect, aimedProp } from './photo.js';
 import { grainDataURL } from './materials.js';
+import { SFX } from './audio.js';
 
 const THREE = window.THREE;
 const $ = id => document.getElementById(id);
@@ -66,6 +67,9 @@ export function updateRoll() {
     film.appendChild(row);
   }
   const hasNeg = (L.def.film?.neg ?? 0) > 0;
+  const hasFilm = hasNeg || (L.def.film?.pos ?? 0) > 0;
+  $('roll').style.display = hasFilm ? '' : 'none';
+  if (!hasFilm) { $('keys').innerHTML = '<kbd>R</kbd> restart'; return; }
   $('keys').innerHTML = [
     L.def.wide ? '<kbd>Wheel</kbd>/<kbd>G</kbd> frame size (camera up)' : '',
     hasNeg ? '<kbd>T</kbd> switch film' : '',
@@ -133,8 +137,9 @@ export function updateAim() {
   ghost.group.visible = false;
   vf.hidden = !G.aim;
   $('roll').hidden = G.aim;
+  $('cardread').hidden = true;
   if (!L || L.finished) { prompt.textContent = ''; setLit([], NONE); return; }
-  for (const s of L.statics) if (s.kind === 'emulsion' && s.mesh) s.mesh.material.emissive.setHex(0x3a0a05);
+  for (const s of L.statics) if (s.kind === 'emulsion' && s.mesh) s.mesh.material.emissive.setHex(0x2a0603);
 
   if (G.aim) {
     const group = framedProps();
@@ -167,7 +172,7 @@ export function updateAim() {
     return;
   }
   const photo = G.roll[G.selected];
-  if (!photo) { setLit([], NONE); prompt.textContent = ''; return; }
+  if (!photo) { setLit([], NONE); prompt.textContent = ''; readCard(); return; }
   const pl = solvePlacement(photo);
   if (!pl) { setLit([], NONE); prompt.innerHTML = '<span class="bad">NO SURFACE</span>'; return; }
   ghost.group.visible = true;
@@ -195,6 +200,24 @@ export function updateAim() {
   const dims = `${fmtM(pl.size.x)} × ${fmtM(pl.size.y)} × ${fmtM(pl.size.z)} m · ${fmtT(pl.mass)} t`;
   const fall = !isFinite(pl.drop) ? ' · <span class="bad">FALLS AWAY</span>' : pl.drop > 1.5 ? ` · drops ${pl.drop.toFixed(1)} m` : '';
   prompt.innerHTML = pl.valid ? `<span class="ok">CLICK</span> develop · ${dims}${fall}` : `<span class="bad">${pl.reason}</span> · ${dims}`;
+}
+
+// An index card within reach and in plain view shows its text.
+const cardRay = new THREE.Raycaster();
+let lastCard = null;
+function readCard() {
+  const L = G.L;
+  if (!L.cards.length) return;
+  cardRay.setFromCamera(new THREE.Vector2(0, 0), G.camera);
+  cardRay.far = 3.2;
+  const h = cardRay.intersectObjects([...L.cards, ...L.rayMeshes], false).find(x => x.object.userData.kind !== 'glass');
+  const card = h && h.object.userData.card;
+  const box = $('cardread');
+  if (!card) { box.hidden = true; lastCard = null; return; }
+  if (card !== lastCard) { SFX.card(); lastCard = card; }
+  $('card-title').textContent = card.title || '';
+  $('card-text').textContent = card.text || '';
+  box.hidden = false;
 }
 
 function fmtM(v) { return v < 10 ? v.toFixed(2) : v.toFixed(1); }

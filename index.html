@@ -115,7 +115,31 @@
   #controls dt { text-align: right; }
   #controls dd { margin: 0; }
   #settings input { accent-color: var(--safe); }
+  #settings select { background: var(--ink-2); color: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 3px 6px; font: inherit; }
   #settings { margin-top: 16px; color: var(--dim); font-size: 14px; display: flex; gap: 10px; align-items: center; }
+
+  /* the Curator's subtitles, index cards, the enlarger's flash */
+  #subtitle { position: absolute; left: 50%; bottom: 168px; transform: translateX(-50%); width: min(760px, calc(100vw - 48px)); text-align: center; }
+  #subtitle .who { font: 700 11px var(--mono); letter-spacing: .24em; color: var(--safe-2); margin-bottom: 4px; }
+  #subtitle.other .who { color: var(--ok); }
+  #subtitle .text { display: inline-block; font: 500 19px/1.45 var(--ui); background: #0b0807cc; padding: 6px 14px; border-radius: 4px; text-shadow: 0 1px 2px #000; }
+  #cardread { position: absolute; left: 50%; top: calc(50% + 48px); transform: translateX(-50%) rotate(-1deg); width: min(380px, calc(100vw - 48px)); background: #efe6d2; color: #2a2320; padding: 12px 16px 14px; box-shadow: 0 10px 30px #000c; border-top: 3px solid var(--safe); }
+  #cardread .t { font: 700 12px var(--mono); letter-spacing: .14em; margin-bottom: 6px; }
+  #cardread .x { font: 15px/1.5 ui-monospace, "Courier New", monospace; white-space: pre-wrap; }
+  #whiteout { position: absolute; inset: 0; background: #fff8ee; opacity: 0; }
+  #whiteout.go { animation: whiteout .5s ease-out; }
+  #whiteout.go.hit { animation: whiteout 1.4s ease-out; }
+  @keyframes whiteout { from { opacity: .7; } to { opacity: 0; } }
+  #whiteout.go.hit { animation-name: whiteouthit; }
+  @keyframes whiteouthit { from { opacity: 1; } 40% { opacity: .95; } to { opacity: 0; } }
+  #ending { position: fixed; inset: 0; background: #fbf6ec; color: #2a2320; display: grid; place-items: center; overflow: auto; animation: dawn 3s ease-out; }
+  @keyframes dawn { from { background: #ffffff; } }
+  #ending .box { width: min(560px, calc(100vw - 48px)); padding: 32px 0; }
+  #ending h1 { font: 900 56px/1 var(--ui); margin: 0 0 18px; letter-spacing: -.02em; }
+  #ending h1 span { color: var(--safe); }
+  #ending p { font-size: 17px; line-height: 1.6; }
+  #ending .credits { margin-top: 28px; font: 13px/1.9 var(--mono); color: #6b5f52; }
+  #ending .btn { margin-top: 24px; }
 
   #test-report { position: fixed; inset: 0; margin: 0; padding: 24px; font: 14px/1.6 var(--mono); background: var(--ink); white-space: pre-wrap; overflow: auto; }
 
@@ -158,8 +182,11 @@
   <div id="keys"></div>
   <div id="roll"></div>
   <div id="toast"></div>
+  <div id="subtitle" hidden><div class="who" id="sub-who"></div><div class="text" id="sub-text"></div></div>
+  <div id="cardread" hidden><div class="t" id="card-title"></div><div class="x" id="card-text"></div></div>
   <div id="titlecard"><div class="no" id="tc-no"></div><div class="name" id="tc-name"></div></div>
   <div id="flash"></div>
+  <div id="whiteout"></div>
   <div id="fade"></div>
 </div>
 
@@ -194,13 +221,25 @@
       <dt><kbd>Z</kbd> <kbd>X</kbd> <kbd>R</kbd></dt><dd>Undo, throw a photo away, restart the frame</dd>
       <dt><kbd>Esc</kbd> <kbd>F2</kbd></dt><dd>Pause, level editor</dd>
     </dl>
-    <div id="settings"><label for="sens">Mouse sensitivity</label><input id="sens" type="range" min="0.3" max="2.5" step="0.05" value="1"></div>
+    <div id="settings"><label for="sens">Mouse sensitivity</label><input id="sens" type="range" min="0.3" max="2.5" step="0.05" value="1">
+      <label for="gfx" style="margin-left:18px">Graphics</label><select id="gfx"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+  </div>
+</div>
+
+<div id="ending" hidden>
+  <div class="box">
+    <h1>Light<span>leak</span></h1>
+    <p>You walk out of the archive into ordinary daylight. It's too bright to see anything for a while, and then it isn't.</p>
+    <p>Somewhere behind you, fifteen prints of Wren Adeyemi hang in a dark room, dry and quiet. You were the sixteenth. Now you're someone else.</p>
+    <div class="credits">A game by Jonah Saunders<br>Built with three.js and Rapier<br>Every texture drawn and every sound synthesised in code<br><br>Thanks for playing.</div>
+    <button class="btn" id="ending-close">Back to the menu</button>
   </div>
 </div>
 
 <pre id="test-report" hidden></pre>
 
 <script src="vendor/three.min.js"></script>
+<script src="vendor/three-post.js"></script>
 <script type="module" src="js/main.js"></script>
 </body>
 </html>

@@ -34,7 +34,7 @@ async function boot() {
       report = await win.webContents.executeJavaScript('window.__testReport ? JSON.stringify(window.__testReport) : null');
     }
     report = report ? JSON.parse(report) : { passed: 0, failed: 1, results: [{ id: '(runner)', ok: false, why: 'timed out' }] };
-    for (const r of report.results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.id.padEnd(16)} ${r.ok ? `${r.seconds.toFixed(1)}s of play` : r.why}`);
+    for (const r of report.results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.id.padEnd(16)} ${r.ok ? (r.note === 'no z-fighting' ? 'no z-fighting' : `${r.seconds.toFixed(1)}s of play`) : r.why}`);
     console.log(`\n${report.passed} passed, ${report.failed} failed`);
     app.exit(report.failed ? 1 : 0);
   }

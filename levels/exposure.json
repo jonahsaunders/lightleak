@@ -182,5 +182,18 @@
     {
       "exit": true
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "This is the archive camera. It copies things.",
+      "Point it, hold the button, and the thing goes onto film. Develop the film somewhere else and the thing is there too.",
+      "The original stays exactly where it was. Originals always do."
+    ],
+    "photo": [
+      "A clean exposure. Good."
+    ],
+    "door": [
+      "The door opens when the plate is satisfied. Everything here is easy to satisfy if you give it what it wants."
+    ]
+  }
 }

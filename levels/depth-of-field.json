@@ -154,5 +154,14 @@
     {
       "exit": true
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "A photograph remembers how big something looked, not how big it was.",
+      "Most people find that unsettling. I find it restful."
+    ],
+    "develop": [
+      "There. Much larger. Nothing was harmed."
+    ]
+  }
 }

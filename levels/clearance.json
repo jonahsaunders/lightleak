@@ -177,5 +177,11 @@
     {
       "exit": true
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "You keep removing things.",
+      "Do you know how long it takes to get something back once it's gone? It takes forever. That's how long."
+    ]
+  }
 }

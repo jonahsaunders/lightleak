@@ -36,7 +36,7 @@
       "min": [
         -7.5,
         -12,
-        -20.5
+        -20
       ],
       "max": [
         7.5,
@@ -270,5 +270,14 @@
         }
       ]
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "You should know that the originals are all perfectly safe.",
+      "They don't have to worry about anything any more."
+    ],
+    "door": [
+      "That concludes the first roll. You have a very steady hand, for a print."
+    ]
+  }
 }

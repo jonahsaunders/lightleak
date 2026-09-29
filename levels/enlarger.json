@@ -1,0 +1,662 @@
+{
+  "id": "enlarger",
+  "name": "The Enlarger",
+  "wide": true,
+  "film": {
+    "pos": 8,
+    "neg": 2
+  },
+  "hint": "Its flash can't reach you behind anything solid. Load the plates, open the lamp, and drop something heavy on it.",
+  "room": {
+    "x0": -12,
+    "x1": 12,
+    "z0": -30,
+    "z1": 6,
+    "h": 14,
+    "door": {
+      "x": 8
+    }
+  },
+  "blocks": [
+    {
+      "min": [
+        -1.5,
+        0,
+        -13.5
+      ],
+      "max": [
+        1.5,
+        1,
+        -10.5
+      ],
+      "mat": "ledge"
+    },
+    {
+      "min": [
+        -1.5,
+        1,
+        -13.5
+      ],
+      "max": [
+        1.5,
+        3.2,
+        -13.2
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        -1.5,
+        1,
+        -10.8
+      ],
+      "max": [
+        1.5,
+        3.2,
+        -10.5
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        -1.5,
+        1,
+        -13.2
+      ],
+      "max": [
+        -1.2,
+        3.2,
+        -10.8
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        1.2,
+        1,
+        -13.2
+      ],
+      "max": [
+        1.5,
+        3.2,
+        -10.8
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        -1.5,
+        3.2,
+        -13.5
+      ],
+      "max": [
+        1.5,
+        3.5,
+        -10.5
+      ],
+      "mat": "emulsion",
+      "tag": "lid"
+    },
+    {
+      "min": [
+        -9.05,
+        0,
+        -8
+      ],
+      "max": [
+        -8.95,
+        14,
+        -2
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        -12,
+        0,
+        -8.1
+      ],
+      "max": [
+        -9,
+        14,
+        -8
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        -12,
+        0,
+        -2
+      ],
+      "max": [
+        -9,
+        14,
+        -1.9
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        8.95,
+        0,
+        -8
+      ],
+      "max": [
+        9.05,
+        14,
+        -2
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        9,
+        0,
+        -8.1
+      ],
+      "max": [
+        12,
+        14,
+        -8
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        9,
+        0,
+        -2
+      ],
+      "max": [
+        12,
+        14,
+        -1.9
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        -6.5,
+        0,
+        -10.5
+      ],
+      "max": [
+        -5.5,
+        4,
+        -9.5
+      ],
+      "mat": "ledge"
+    },
+    {
+      "min": [
+        5.5,
+        0,
+        -10.5
+      ],
+      "max": [
+        6.5,
+        4,
+        -9.5
+      ],
+      "mat": "ledge"
+    },
+    {
+      "min": [
+        -5.5,
+        0,
+        -22.5
+      ],
+      "max": [
+        -4.5,
+        4,
+        -21.5
+      ],
+      "mat": "ledge"
+    },
+    {
+      "min": [
+        4.5,
+        0,
+        -22.5
+      ],
+      "max": [
+        5.5,
+        4,
+        -21.5
+      ],
+      "mat": "ledge"
+    }
+  ],
+  "props": [
+    {
+      "type": "steel",
+      "pos": [
+        -10.5,
+        0,
+        -5
+      ],
+      "size": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "type": "steel",
+      "pos": [
+        10.5,
+        0,
+        -5
+      ],
+      "size": [
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "plates": [
+    {
+      "pos": [
+        -8,
+        0,
+        -20
+      ],
+      "size": [
+        2.4,
+        2.4
+      ],
+      "need": 5
+    },
+    {
+      "pos": [
+        8,
+        0,
+        -20
+      ],
+      "size": [
+        2.4,
+        2.4
+      ],
+      "need": 5
+    },
+    {
+      "pos": [
+        0,
+        0,
+        -1
+      ],
+      "size": [
+        2.4,
+        2.4
+      ],
+      "need": 5
+    }
+  ],
+  "lights": [
+    {
+      "pos": [
+        -8,
+        14,
+        -5
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        8,
+        14,
+        -5
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        -8,
+        14,
+        -20
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        8,
+        14,
+        -20
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        -10.5,
+        4,
+        -5
+      ],
+      "intensity": 0.6,
+      "dist": 7
+    },
+    {
+      "pos": [
+        10.5,
+        4,
+        -5
+      ],
+      "intensity": 0.6,
+      "dist": 7
+    }
+  ],
+  "decor": [
+    {
+      "kind": "line",
+      "from": [
+        -11.9,
+        6,
+        -26
+      ],
+      "to": [
+        -11.9,
+        6,
+        2
+      ]
+    },
+    {
+      "kind": "line",
+      "from": [
+        11.9,
+        6,
+        -26
+      ],
+      "to": [
+        11.9,
+        6,
+        2
+      ]
+    }
+  ],
+  "boss": {
+    "lens": [
+      0,
+      7.5,
+      -24
+    ],
+    "bulb": [
+      0,
+      1.75,
+      -12
+    ],
+    "bulbRadius": 0.7,
+    "shutter": {
+      "min": [
+        -1.7,
+        3.5,
+        -13.7
+      ],
+      "max": [
+        1.7,
+        3.8,
+        -10.3
+      ],
+      "move": [
+        4,
+        0,
+        0
+      ]
+    },
+    "hp": 3,
+    "hitMass": 10,
+    "radius": 2.2,
+    "interval": [
+      7,
+      6,
+      5
+    ],
+    "warn": 1.5,
+    "grace": 6
+  },
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      3
+    ],
+    "yaw": 0
+  },
+  "story": {
+    "start": [
+      "This is the easel. You're standing on it.",
+      "Hold still. It's only one flash, and then you'll never have to move again."
+    ],
+    "dodged": [
+      "You moved. Everyone moves the first time."
+    ],
+    "overexposed": [
+      "There\u2014 oh. You've come loose again."
+    ],
+    "plate": [
+      "Those are my counterweights. Put them\u2014 leave them alone."
+    ],
+    "phase2": [
+      "That's the shutter. Close the shutter. Close it."
+    ],
+    "phase3": [
+      "Don't. That's the lamp.",
+      "If the lamp goes out I can't see anything. If I can't see it, I can't keep it."
+    ],
+    "hit1": [
+      "Stop dropping things on me!"
+    ],
+    "hit2": [
+      "The filament's going. Please.",
+      "I have everyone in here. Everyone who ever stood still for me."
+    ],
+    "defeated": [
+      "It's all going white.",
+      "Is it still there? Everything I kept?",
+      "Wren? Is it still\u2014"
+    ]
+  },
+  "solution": [
+    {
+      "walk": [
+        -7,
+        -5
+      ]
+    },
+    {
+      "shoot": [
+        -10.5,
+        0.5,
+        -5
+      ]
+    },
+    {
+      "shoot": [
+        -10.5,
+        0.5,
+        -5
+      ]
+    },
+    {
+      "shoot": [
+        -10.5,
+        0.5,
+        -5
+      ]
+    },
+    {
+      "walk": [
+        -8,
+        -14
+      ]
+    },
+    {
+      "develop": [
+        -8,
+        0.08,
+        -20
+      ],
+      "slot": 0
+    },
+    {
+      "walk": [
+        0,
+        -6
+      ]
+    },
+    {
+      "develop": [
+        0,
+        0.08,
+        -1
+      ],
+      "slot": 0
+    },
+    {
+      "walk": [
+        8,
+        -14
+      ]
+    },
+    {
+      "develop": [
+        8,
+        0.08,
+        -20
+      ],
+      "slot": 0
+    },
+    {
+      "walk": [
+        7,
+        -5
+      ]
+    },
+    {
+      "shoot": [
+        10.5,
+        0.5,
+        -5
+      ],
+      "film": "neg"
+    },
+    {
+      "walk": [
+        0,
+        -6
+      ]
+    },
+    {
+      "develop": [
+        0,
+        3.35,
+        -10.5
+      ]
+    },
+    {
+      "walk": [
+        -4,
+        0.5
+      ]
+    },
+    {
+      "shoot": [
+        -10.5,
+        0.5,
+        -5
+      ],
+      "film": "pos"
+    },
+    {
+      "shoot": [
+        -10.5,
+        0.5,
+        -5
+      ]
+    },
+    {
+      "shoot": [
+        -10.5,
+        0.5,
+        -5
+      ]
+    },
+    {
+      "walk": [
+        -2,
+        -3.5
+      ]
+    },
+    {
+      "develop": [
+        0,
+        14,
+        -12
+      ],
+      "slot": 0,
+      "settle": 0.2
+    },
+    {
+      "walk": [
+        2,
+        -3.5
+      ]
+    },
+    {
+      "develop": [
+        0,
+        14,
+        -12
+      ],
+      "slot": 0,
+      "settle": 0.2
+    },
+    {
+      "walk": [
+        -2,
+        -3.5
+      ]
+    },
+    {
+      "develop": [
+        0,
+        14,
+        -12
+      ],
+      "slot": 0,
+      "settle": 0.2
+    },
+    {
+      "walk": [
+        3,
+        -6
+      ]
+    },
+    {
+      "walk": [
+        8,
+        -27
+      ]
+    },
+    {
+      "exit": true
+    }
+  ],
+  "mustFail": [
+    {
+      "why": "walk to the door without beating it",
+      "steps": [
+        {
+          "walk": [
+            8,
+            -27
+          ]
+        },
+        {
+          "exit": true,
+          "timeout": 8
+        }
+      ]
+    }
+  ]
+}

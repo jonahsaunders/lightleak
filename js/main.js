@@ -2,7 +2,8 @@
 import RAPIER from '../vendor/rapier.mjs';
 import { G, emit } from './state.js';
 import { DT, CAMERA, PLAYER } from './config.js';
-import { initMaterials } from './materials.js';
+import { initMaterials, ENV } from './materials.js';
+import { setQuality, getQuality, renderFrame, resizePost, setExposure } from './post.js';
 import { loadLevel, stepWorld, playerInExit, restore, pushUndo, snapshot } from './level.js';
 import { P, stepPlayer, eyePosition } from './player.js';
 import { takePhoto, develop, discard } from './photo.js';
@@ -10,6 +11,7 @@ import { initHUD, toast, flash, showTitle, updateRoll, updateAim, chapterOf } fr
 import { SFX, unlockAudio } from './audio.js';
 import { runTests, Driver } from './driver.js';
 import { Editor } from './editor.js';
+import { storyReset, storyEvent, storyFrame } from './story.js';
 
 const THREE = window.THREE;
 const $ = id => document.getElementById(id);
@@ -37,6 +39,7 @@ function resize() {
   renderer.setSize(innerWidth, innerHeight, false);
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
+  resizePost();
 }
 addEventListener('resize', resize);
 
@@ -144,7 +147,7 @@ function handle(a) {
     if ((L.def.film?.[other] ?? 0) > 0) { G.filmMode = other; if (!G.headless) SFX.click(); emit('rollChanged'); }
   } else if (name === 'undo') {
     const s = G.undo.pop();
-    if (s) { restore(s); G.checkpoint = snapshot(); if (!G.headless) SFX.undo(); toast('Undone.'); live.yaw = P.yaw; live.pitch = P.pitch; }
+    if (s) { restore(s); G.checkpoint = snapshot(); if (!G.headless) SFX.undo(); toast('Undone.'); storyEvent('undo'); live.yaw = P.yaw; live.pitch = P.pitch; }
     else toast('Nothing to undo.');
   } else if (name === 'reset') { startLevel(L.def.id, { quiet: true }); toast('Frame restarted.'); }
 }
@@ -162,10 +165,19 @@ export function tick(input) {
   stepPlayer(input);
   stepWorld();
   G.tick++;
+  if (L.boss && L.boss.zapped) {
+    // caught by the enlarger's flash: same as a fall, back to just after your last action
+    L.boss.zapped = false;
+    restore(G.checkpoint);
+    toast('Overexposed. Back to your last shot.');
+    live.yaw = P.yaw; live.pitch = P.pitch;
+    return;
+  }
   if (playerInExit()) finishLevel();
   else if (P.pos.y < L.killY) {
     // back to just after your last shot or development, with the photos you had then
     if (!G.headless) SFX.fall();
+    storyEvent('fall');
     restore(G.checkpoint);
     toast(G.undo.length ? 'You fell. Back to your last shot.' : 'You fell. Back to the start.');
     live.yaw = P.yaw; live.pitch = P.pitch;
@@ -216,7 +228,7 @@ function finishLevel() {
     } else {
       G.mode = 'done';
       document.exitPointerLock?.();
-      showMenu('Roll developed. That is every frame so far — the editor (F2) can make more.');
+      showEnding();
     }
   }, 700);
 }
@@ -253,6 +265,12 @@ function showMenu(msg) {
   }
 }
 function pause() { G.mode = 'paused'; showMenu(); }
+function showEnding() {
+  showMenu();
+  $('menu').hidden = true;
+  $('ending').hidden = false;
+}
+$('ending-close').onclick = () => { $('ending').hidden = true; showMenu(); };
 function begin(id) {
   unlockAudio();
   $('menu').hidden = true; $('hud').hidden = false;
@@ -263,6 +281,7 @@ function begin(id) {
 $('play').onclick = () => (G.mode === 'paused' ? begin() : begin(nextUp()));
 $('restart').onclick = () => begin(G.L.def.id);
 $('to-editor').onclick = () => openEditor();
+$('gfx').onchange = e => { setQuality(e.target.value); try { localStorage.setItem('lightleak.gfx', e.target.value); } catch (err) { /* ignore */ } };
 $('sens').value = sensitivity;
 $('sens').oninput = e => { sensitivity = Number(e.target.value); try { localStorage.setItem('lightleak.sens', sensitivity); } catch (err) { /* ignore */ } };
 
@@ -299,13 +318,13 @@ const editorApi = {
 };
 
 // ---------- loop ----------
-let last = performance.now(), acc = 0;
+let last = performance.now(), acc = 0, shake = 0;
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
   if (Math.abs(camera.aspect - innerWidth / innerHeight) > 1e-3) resize();
-  if (G.mode === 'editor') { editor.frame(dt); renderer.render(scene, camera); return; }
+  if (G.mode === 'editor') { editor.frame(dt); renderFrame(); return; }
   if (G.mode === 'playing' && G.L) {
     acc += dt;
     while (acc >= DT) {
@@ -319,9 +338,16 @@ function frame(now) {
       if (G.mode !== 'playing') break;
     }
     syncCamera(Math.min(1, acc / DT));
+    if (shake > 0) {
+      camera.position.x += (Math.random() - 0.5) * shake * 0.3;
+      camera.position.y += (Math.random() - 0.5) * shake * 0.3;
+      shake = Math.max(0, shake - dt * 1.5);
+    }
     updateAim();
+    storyFrame(dt);
   }
-  renderer.render(scene, camera);
+  if (G.L) for (const f of G.L.animate) f(dt);
+  renderFrame();
   if (G.pendingThumb) finishThumb();
 }
 
@@ -345,6 +371,11 @@ function finishThumb() {
 async function boot() {
   resize();
   initMaterials(renderer);
+  scene.environment = ENV;
+  let q = 'high';
+  try { q = localStorage.getItem('lightleak.gfx') || 'high'; } catch (e) { /* default */ }
+  setQuality(q);
+  $('gfx').value = q;
   initHUD();
   await RAPIER.init();
   G.R = RAPIER;
@@ -354,7 +385,13 @@ async function boot() {
   const defs = await Promise.all(ids.map(id => fetch(`levels/${id}.json`, { cache: 'no-store' }).then(r => r.json())));
   ids.forEach((id, i) => { G.defs[id] = { ...defs[i], id }; });
   G.order = index.chapters.filter(c => !c.custom).flatMap(c => c.levels);
-  G.hooks = { toast, flash, rollChanged: updateRoll, levelLoaded() { G.checkpoint = snapshot(); }, acted() { G.checkpoint = snapshot(); } };
+  G.hooks = {
+    toast, flash, rollChanged: updateRoll,
+    levelLoaded() { G.checkpoint = snapshot(); storyReset(); storyEvent('start'); setExposure(G.L.def.bright ? 0.85 : 1.15); },
+    acted() { G.checkpoint = snapshot(); },
+    shake(a) { shake = Math.max(shake, a); },
+    whiteout(hit) { const w = $('whiteout'); w.classList.remove('go', 'hit'); void w.offsetWidth; w.classList.add('go'); if (hit) w.classList.add('hit'); },
+  };
   const dev = await fetch('api/dev').then(r => r.json()).then(j => j.dev).catch(() => false);
   editor = new Editor(editorApi, { dev });
 

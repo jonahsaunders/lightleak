@@ -1,0 +1,155 @@
+{
+  "id": "drying-room",
+  "name": "Drying Room",
+  "film": {},
+  "hint": "WASD to move, Space to jump. Esc pauses.",
+  "room": {
+    "x0": -5,
+    "x1": 5,
+    "z0": -10,
+    "z1": 4,
+    "h": 5,
+    "door": {
+      "x": 0
+    }
+  },
+  "blocks": [],
+  "props": [],
+  "plates": [],
+  "lights": [
+    {
+      "pos": [
+        0,
+        5,
+        0
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        5,
+        -6
+      ],
+      "panel": true
+    }
+  ],
+  "decor": [
+    {
+      "kind": "line",
+      "from": [
+        -4.6,
+        3.3,
+        -6.5
+      ],
+      "to": [
+        4.6,
+        3.3,
+        -6.5
+      ]
+    },
+    {
+      "kind": "line",
+      "from": [
+        -4.6,
+        3.3,
+        -3.5
+      ],
+      "to": [
+        4.6,
+        3.3,
+        -3.5
+      ]
+    },
+    {
+      "kind": "line",
+      "from": [
+        -4.6,
+        3.3,
+        -0.5
+      ],
+      "to": [
+        4.6,
+        3.3,
+        -0.5
+      ]
+    },
+    {
+      "kind": "line",
+      "from": [
+        -4.6,
+        3.3,
+        2.5
+      ],
+      "to": [
+        4.6,
+        3.3,
+        2.5
+      ]
+    },
+    {
+      "kind": "bench",
+      "pos": [
+        -4.2,
+        0,
+        -3
+      ],
+      "rot": 90,
+      "len": 3.2
+    },
+    {
+      "kind": "bench",
+      "pos": [
+        4.2,
+        0,
+        -3
+      ],
+      "rot": 90,
+      "len": 3.2
+    },
+    {
+      "kind": "card",
+      "pos": [
+        -4.99,
+        1.7,
+        1
+      ],
+      "rot": 90,
+      "title": "Notice to staff",
+      "text": "The Curator now handles all accessioning.\nStaff are reminded not to stand in front of the enlarger.\n\u2014 Management"
+    },
+    {
+      "kind": "card",
+      "pos": [
+        4.99,
+        1.7,
+        -7
+      ],
+      "rot": -90,
+      "title": "Found in a tray",
+      "text": "It asked me to sit for a portrait.\nI said I'd think about it.\n\u2014 W.A."
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      1.5
+    ],
+    "yaw": 0
+  },
+  "story": {
+    "start": [
+      "Oh. You've come off the line.",
+      "The clips are old. It happens more than it should.",
+      "You're a print, item sixteen-oh-four-twelve. Prints hang until they're dry, and then they're filed.",
+      "But since you're up, you may as well be useful. The archive camera needs someone to hold it.",
+      "Through the door, please. Mind the drips."
+    ]
+  },
+  "solution": [
+    {
+      "exit": true
+    }
+  ]
+}

@@ -238,5 +238,15 @@
     {
       "exit": true
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "You climb very well. Wren used to climb the shelving when the ladder went missing.",
+      "Wren was one of my staff. You remind me of her.",
+      "That isn't a coincidence. We'll come to that."
+    ],
+    "door": [
+      "Nearly finished. There's some film ahead that hasn't set yet. Leave it alone, please."
+    ]
+  }
 }

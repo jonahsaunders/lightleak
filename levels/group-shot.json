@@ -160,6 +160,17 @@
         3.5,
         -1
       ]
+    },
+    {
+      "kind": "card",
+      "pos": [
+        -6.99,
+        1.7,
+        -8
+      ],
+      "rot": 90,
+      "title": "Staff rota, wk 12",
+      "text": "Adeyemi \u2014 darkroom\nOkafor \u2014 enlarger\nLindqvist \u2014 enlarger\nEveryone else \u2014 enlarger\n(Curator's request)"
     }
   ],
   "spawn": {
@@ -237,5 +248,11 @@
         }
       ]
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "Now, group portraits. Widen the frame and everything inside it comes along, arranged as you saw it.",
+      "The staff used to take group photographs. The last one came out beautifully. Nobody moved at all."
+    ]
+  }
 }

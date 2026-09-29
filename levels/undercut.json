@@ -199,5 +199,13 @@
         }
       ]
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "I did ask nicely."
+    ],
+    "dissolve": [
+      "Stop that."
+    ]
+  }
 }

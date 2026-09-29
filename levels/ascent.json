@@ -211,5 +211,14 @@
         }
       ]
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "The way out is up there. I could lower it for you.",
+      "But watching you work it out is part of the calibration."
+    ],
+    "fall": [
+      "Careful. Creased prints are very difficult to file."
+    ]
+  }
 }

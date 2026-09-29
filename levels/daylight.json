@@ -1,0 +1,129 @@
+{
+  "id": "daylight",
+  "name": "Daylight",
+  "film": {},
+  "bright": true,
+  "hint": "",
+  "room": {
+    "x0": -2.5,
+    "x1": 2.5,
+    "z0": -44,
+    "z1": 4,
+    "h": 4.5,
+    "door": {
+      "x": 0
+    }
+  },
+  "blocks": [],
+  "props": [],
+  "plates": [],
+  "lights": [
+    {
+      "pos": [
+        0,
+        4.5,
+        0
+      ],
+      "panel": true,
+      "intensity": 0.6599999999999999
+    },
+    {
+      "pos": [
+        0,
+        4.5,
+        -6
+      ],
+      "panel": true,
+      "intensity": 0.84
+    },
+    {
+      "pos": [
+        0,
+        4.5,
+        -12
+      ],
+      "panel": true,
+      "intensity": 1.02
+    },
+    {
+      "pos": [
+        0,
+        4.5,
+        -18
+      ],
+      "panel": true,
+      "intensity": 1.2
+    },
+    {
+      "pos": [
+        0,
+        4.5,
+        -24
+      ],
+      "panel": true,
+      "intensity": 1.38
+    },
+    {
+      "pos": [
+        0,
+        4.5,
+        -30
+      ],
+      "panel": true,
+      "intensity": 1.56
+    },
+    {
+      "pos": [
+        0,
+        4.5,
+        -36
+      ],
+      "panel": true,
+      "intensity": 1.7399999999999998
+    },
+    {
+      "pos": [
+        0,
+        4.5,
+        -42
+      ],
+      "panel": true,
+      "intensity": 1.92
+    }
+  ],
+  "decor": [
+    {
+      "kind": "card",
+      "pos": [
+        -2.49,
+        1.7,
+        -2
+      ],
+      "rot": 90,
+      "title": "Taped by the door",
+      "text": "If you're reading this, you got out.\nWhoever you were printed from, you're someone else now.\nGo and be them.\n\u2014 W.A."
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      2
+    ],
+    "yaw": 0
+  },
+  "story": {
+    "start": [
+      {
+        "who": "",
+        "text": "(The archive is silent.)"
+      }
+    ]
+  },
+  "solution": [
+    {
+      "exit": true,
+      "timeout": 30
+    }
+  ]
+}

@@ -151,6 +151,17 @@
         5,
         6
       ]
+    },
+    {
+      "kind": "card",
+      "pos": [
+        -6.99,
+        1.7,
+        -3
+      ],
+      "rot": 90,
+      "title": "Pinned in a tray",
+      "text": "Don't let it photograph you.\nIf it does, don't let it develop you.\nIf it develops you, don't let it fix you.\n\u2014 W.A."
     }
   ],
   "spawn": {
@@ -216,5 +227,11 @@
     {
       "exit": true
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "Someone built this model for a display about the building.",
+      "I kept the model. The building I'm less sure about."
+    ]
+  }
 }

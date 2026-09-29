@@ -312,5 +312,16 @@
     {
       "exit": true
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "All right. You want to know what you are.",
+      "You are the sixteenth print of Wren Adeyemi. The other fifteen are filed. They are very quiet.",
+      "Wren herself left. Out through the front, into all that light. I couldn't keep her."
+    ],
+    "door": [
+      "Come to the enlarging room.",
+      "I'll make a proper print of you. Fixed, this time, so you can't come loose again."
+    ]
+  }
 }

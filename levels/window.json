@@ -200,6 +200,17 @@
       ],
       "rot": 90,
       "len": 3
+    },
+    {
+      "kind": "card",
+      "pos": [
+        -6.99,
+        1.7,
+        -3
+      ],
+      "rot": 90,
+      "title": "Auto-log 16",
+      "text": "Portrait: W. ADEYEMI (staff)\nDeveloped: 16\nFixed and filed: 15\nMissing from drying line: 1"
     }
   ],
   "spawn": {
@@ -310,5 +321,14 @@
         }
       ]
     }
-  ]
+  ],
+  "story": {
+    "start": [
+      "There used to be a window here. I covered it.",
+      "Light leaks in through windows, and light ruins everything it touches. Eventually."
+    ],
+    "dissolve": [
+      "Now look what you've let in."
+    ]
+  }
 }
