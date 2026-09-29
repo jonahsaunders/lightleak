@@ -1,0 +1,281 @@
+{
+  "id": "doubling",
+  "name": "Doubling",
+  "wide": true,
+  "film": {
+    "pos": 2
+  },
+  "hint": "Four plates that each want about one crate, and not much more. A photo developed from the distance it was taken at comes out the same size.",
+  "room": {
+    "x0": -7,
+    "x1": 7,
+    "z0": -12,
+    "z1": 4,
+    "h": 6,
+    "door": {
+      "x": 0
+    }
+  },
+  "plates": [
+    {
+      "pos": [
+        -3,
+        0,
+        -8
+      ],
+      "size": [
+        1.6,
+        1.6
+      ],
+      "need": 0.45,
+      "max": 1.2
+    },
+    {
+      "pos": [
+        -1,
+        0,
+        -8
+      ],
+      "size": [
+        1.6,
+        1.6
+      ],
+      "need": 0.45,
+      "max": 1.2
+    },
+    {
+      "pos": [
+        1,
+        0,
+        -8
+      ],
+      "size": [
+        1.6,
+        1.6
+      ],
+      "need": 0.45,
+      "max": 1.2
+    },
+    {
+      "pos": [
+        3,
+        0,
+        -8
+      ],
+      "size": [
+        1.6,
+        1.6
+      ],
+      "need": 0.45,
+      "max": 1.2
+    }
+  ],
+  "props": [
+    {
+      "type": "crate",
+      "pos": [
+        -3,
+        0.08,
+        -8
+      ],
+      "size": [
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "pos": [
+        0,
+        6,
+        -8
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        6,
+        -1
+      ],
+      "panel": true
+    }
+  ],
+  "decor": [
+    {
+      "kind": "bench",
+      "pos": [
+        -6.2,
+        0,
+        -2
+      ],
+      "rot": 90,
+      "len": 3
+    },
+    {
+      "kind": "bench",
+      "pos": [
+        6.2,
+        0,
+        -2
+      ],
+      "rot": 90,
+      "len": 3
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      2
+    ],
+    "yaw": 0
+  },
+  "solution": [
+    {
+      "walk": [
+        -3,
+        -3
+      ]
+    },
+    {
+      "shoot": [
+        -3,
+        0.58,
+        -8
+      ]
+    },
+    {
+      "walk": [
+        -1,
+        -3
+      ]
+    },
+    {
+      "develop": [
+        -1,
+        0.08,
+        -8
+      ]
+    },
+    {
+      "walk": [
+        -2,
+        -3
+      ]
+    },
+    {
+      "shoot": [
+        -2,
+        0.58,
+        -8
+      ],
+      "frame": 2
+    },
+    {
+      "walk": [
+        2,
+        -3
+      ]
+    },
+    {
+      "develop": [
+        2,
+        0.02,
+        -8
+      ]
+    },
+    {
+      "walk": [
+        0,
+        -6
+      ]
+    },
+    {
+      "walk": [
+        0,
+        -10
+      ]
+    },
+    {
+      "exit": true
+    }
+  ],
+  "mustFail": [
+    {
+      "why": "develop from much further back",
+      "steps": [
+        {
+          "walk": [
+            -3,
+            -3
+          ]
+        },
+        {
+          "shoot": [
+            -3,
+            0.58,
+            -8
+          ]
+        },
+        {
+          "walk": [
+            -1,
+            1
+          ]
+        },
+        {
+          "develop": [
+            -1,
+            0.08,
+            -8
+          ]
+        },
+        {
+          "walk": [
+            -2,
+            -3
+          ]
+        },
+        {
+          "shoot": [
+            -2,
+            0.58,
+            -8
+          ],
+          "frame": 2
+        },
+        {
+          "walk": [
+            2,
+            -3
+          ]
+        },
+        {
+          "develop": [
+            2,
+            0.02,
+            -8
+          ]
+        },
+        {
+          "walk": [
+            0,
+            -6
+          ]
+        },
+        {
+          "walk": [
+            0,
+            -10
+          ]
+        },
+        {
+          "exit": true
+        }
+      ]
+    }
+  ]
+}

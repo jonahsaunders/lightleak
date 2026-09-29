@@ -1,0 +1,186 @@
+{
+  "id": "exposure",
+  "name": "Exposure",
+  "hint": "The crate is behind glass. Hold right mouse (or press F) to raise the camera and photograph it, then press 1 and click to develop the photo on the plate.",
+  "film": {
+    "pos": 3
+  },
+  "room": {
+    "x0": -6,
+    "x1": 6,
+    "z0": -9,
+    "z1": 5,
+    "h": 5,
+    "door": {
+      "x": 0
+    }
+  },
+  "blocks": [
+    {
+      "min": [
+        2.5,
+        0,
+        -1.6
+      ],
+      "max": [
+        2.6,
+        5,
+        1.6
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        2.6,
+        0,
+        -1.6
+      ],
+      "max": [
+        6,
+        5,
+        -1.5
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        2.6,
+        0,
+        1.5
+      ],
+      "max": [
+        6,
+        5,
+        1.6
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        3.3,
+        0,
+        -1
+      ],
+      "max": [
+        5.3,
+        0.4,
+        1
+      ],
+      "mat": "ledge"
+    }
+  ],
+  "plates": [
+    {
+      "pos": [
+        0,
+        0,
+        -6.5
+      ],
+      "size": [
+        2,
+        2
+      ],
+      "need": 0.5
+    }
+  ],
+  "props": [
+    {
+      "type": "crate",
+      "pos": [
+        4.3,
+        0.4,
+        0
+      ],
+      "size": [
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "pos": [
+        0,
+        5,
+        0
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        5,
+        -6
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        4.3,
+        4,
+        0
+      ],
+      "intensity": 0.6,
+      "dist": 8
+    }
+  ],
+  "decor": [
+    {
+      "kind": "bench",
+      "pos": [
+        -5.2,
+        0,
+        -1.5
+      ],
+      "rot": 90,
+      "len": 3.2
+    },
+    {
+      "kind": "line",
+      "from": [
+        -5.9,
+        3.3,
+        -7
+      ],
+      "to": [
+        -5.9,
+        3.3,
+        3
+      ]
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      3
+    ],
+    "yaw": 0
+  },
+  "solution": [
+    {
+      "shoot": [
+        4.3,
+        0.9,
+        0
+      ]
+    },
+    {
+      "develop": [
+        0,
+        0.08,
+        -6.5
+      ]
+    },
+    {
+      "walk": [
+        2.5,
+        -8
+      ]
+    },
+    {
+      "exit": true
+    }
+  ]
+}

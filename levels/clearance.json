@@ -1,0 +1,181 @@
+{
+  "id": "clearance",
+  "name": "Clearance",
+  "wide": true,
+  "film": {
+    "pos": 1,
+    "neg": 1
+  },
+  "hint": "The plate is overloaded. T switches between film and negative.",
+  "room": {
+    "x0": -6,
+    "x1": 6,
+    "z0": -12,
+    "z1": 6,
+    "h": 5,
+    "door": {
+      "x": 0
+    }
+  },
+  "blocks": [
+    {
+      "min": [
+        3.5,
+        0,
+        0.5
+      ],
+      "max": [
+        4.5,
+        0.6,
+        1.5
+      ],
+      "mat": "ledge"
+    }
+  ],
+  "plates": [
+    {
+      "pos": [
+        0,
+        0,
+        -7
+      ],
+      "size": [
+        2.2,
+        2.2
+      ],
+      "need": 0.5,
+      "max": 1.5
+    }
+  ],
+  "props": [
+    {
+      "type": "steel",
+      "pos": [
+        0,
+        0.08,
+        -7
+      ],
+      "size": [
+        1.2,
+        1.2,
+        1.2
+      ]
+    },
+    {
+      "type": "crate",
+      "pos": [
+        4,
+        0.6,
+        1
+      ],
+      "size": [
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "pos": [
+        0,
+        5,
+        0
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        5,
+        -7
+      ],
+      "panel": true
+    }
+  ],
+  "decor": [
+    {
+      "kind": "bench",
+      "pos": [
+        -5.2,
+        0,
+        -3
+      ],
+      "rot": 90,
+      "len": 3
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      3
+    ],
+    "yaw": 0
+  },
+  "solution": [
+    {
+      "walk": [
+        0,
+        -2
+      ]
+    },
+    {
+      "shoot": [
+        0,
+        0.7,
+        -7
+      ],
+      "film": "neg"
+    },
+    {
+      "develop": [
+        0,
+        0.7,
+        -6.4
+      ]
+    },
+    {
+      "walk": [
+        3,
+        -1.5
+      ]
+    },
+    {
+      "shoot": [
+        4,
+        1.1,
+        1
+      ],
+      "film": "pos"
+    },
+    {
+      "walk": [
+        0,
+        -4
+      ]
+    },
+    {
+      "develop": [
+        0,
+        0.08,
+        -7
+      ]
+    },
+    {
+      "walk": [
+        1.8,
+        -8.5
+      ]
+    },
+    {
+      "walk": [
+        0,
+        -10.5
+      ]
+    },
+    {
+      "exit": true
+    }
+  ]
+}

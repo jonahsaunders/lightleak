@@ -1,0 +1,241 @@
+{
+  "id": "group-shot",
+  "name": "Group Shot",
+  "wide": true,
+  "film": {
+    "pos": 1
+  },
+  "hint": "One frame of film, two plates. Raise the camera and roll the mouse wheel to widen the frame until both crates light up.",
+  "room": {
+    "x0": -7,
+    "x1": 7,
+    "z0": -14,
+    "z1": 6,
+    "h": 7,
+    "door": {
+      "x": 0
+    }
+  },
+  "blocks": [
+    {
+      "min": [
+        -3,
+        0,
+        3
+      ],
+      "max": [
+        3,
+        7,
+        3.1
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        -3.1,
+        0,
+        3
+      ],
+      "max": [
+        -3,
+        7,
+        6
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        3,
+        0,
+        3
+      ],
+      "max": [
+        3.1,
+        7,
+        6
+      ],
+      "mat": "glass"
+    }
+  ],
+  "props": [
+    {
+      "type": "crate",
+      "pos": [
+        -1,
+        0,
+        4.5
+      ],
+      "size": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "type": "crate",
+      "pos": [
+        1,
+        0,
+        4.5
+      ],
+      "size": [
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "plates": [
+    {
+      "pos": [
+        -2,
+        0,
+        -9
+      ],
+      "size": [
+        2.4,
+        2.4
+      ],
+      "need": 0.8
+    },
+    {
+      "pos": [
+        2,
+        0,
+        -9
+      ],
+      "size": [
+        2.4,
+        2.4
+      ],
+      "need": 0.8
+    }
+  ],
+  "lights": [
+    {
+      "pos": [
+        0,
+        7,
+        4.5
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        7,
+        -2
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        7,
+        -9
+      ],
+      "panel": true
+    }
+  ],
+  "decor": [
+    {
+      "kind": "bench",
+      "pos": [
+        -6.2,
+        0,
+        -3
+      ],
+      "rot": 90,
+      "len": 3
+    },
+    {
+      "kind": "line",
+      "from": [
+        6.9,
+        3.5,
+        -12
+      ],
+      "to": [
+        6.9,
+        3.5,
+        -1
+      ]
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      0
+    ],
+    "yaw": 180
+  },
+  "solution": [
+    {
+      "shoot": [
+        0,
+        0.5,
+        4.5
+      ],
+      "frame": 3
+    },
+    {
+      "walk": [
+        0,
+        -2
+      ]
+    },
+    {
+      "develop": [
+        0,
+        0.02,
+        -9
+      ]
+    },
+    {
+      "walk": [
+        0,
+        -11
+      ]
+    },
+    {
+      "exit": true
+    }
+  ],
+  "mustFail": [
+    {
+      "why": "use one crate for both plates",
+      "steps": [
+        {
+          "shoot": [
+            1,
+            0.5,
+            4.5
+          ]
+        },
+        {
+          "walk": [
+            0,
+            -2
+          ]
+        },
+        {
+          "develop": [
+            2,
+            0.08,
+            -9
+          ]
+        },
+        {
+          "walk": [
+            0,
+            -11
+          ]
+        },
+        {
+          "exit": true
+        }
+      ]
+    }
+  ]
+}

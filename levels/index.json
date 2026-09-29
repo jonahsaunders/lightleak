@@ -1,0 +1,34 @@
+{
+  "chapters": [
+    {
+      "name": "Exposure",
+      "levels": [
+        "exposure",
+        "depth-of-field",
+        "wide-angle",
+        "ascent",
+        "overhang"
+      ]
+    },
+    {
+      "name": "Composition",
+      "levels": [
+        "group-shot",
+        "doubling",
+        "staircase",
+        "turnaround",
+        "terrace"
+      ]
+    },
+    {
+      "name": "Negative",
+      "levels": [
+        "negative",
+        "clearance",
+        "undercut",
+        "window",
+        "darkroom"
+      ]
+    }
+  ]
+}

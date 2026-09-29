@@ -1,0 +1,231 @@
+{
+  "id": "turnaround",
+  "name": "Turnaround",
+  "wide": true,
+  "film": {
+    "pos": 1
+  },
+  "hint": "The crates sit side by side; the plates sit one behind the other. Q and E turn the photo you are holding.",
+  "room": {
+    "x0": -7,
+    "x1": 7,
+    "z0": -16,
+    "z1": 6,
+    "h": 6,
+    "door": {
+      "x": 0
+    }
+  },
+  "blocks": [
+    {
+      "min": [
+        -7,
+        0,
+        -16
+      ],
+      "max": [
+        -2,
+        6,
+        -4
+      ],
+      "mat": "wall"
+    },
+    {
+      "min": [
+        2,
+        0,
+        -16
+      ],
+      "max": [
+        7,
+        6,
+        -4
+      ],
+      "mat": "wall"
+    },
+    {
+      "min": [
+        4,
+        0,
+        -2.5
+      ],
+      "max": [
+        4.1,
+        6,
+        2.5
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        4.1,
+        0,
+        -2.6
+      ],
+      "max": [
+        7,
+        6,
+        -2.5
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        4.1,
+        0,
+        2.5
+      ],
+      "max": [
+        7,
+        6,
+        2.6
+      ],
+      "mat": "glass"
+    }
+  ],
+  "props": [
+    {
+      "type": "crate",
+      "pos": [
+        5.5,
+        0,
+        -1
+      ],
+      "size": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "type": "crate",
+      "pos": [
+        5.5,
+        0,
+        1
+      ],
+      "size": [
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "plates": [
+    {
+      "pos": [
+        0,
+        0,
+        -7
+      ],
+      "size": [
+        2.4,
+        2.4
+      ],
+      "need": 0.8
+    },
+    {
+      "pos": [
+        0,
+        0,
+        -11
+      ],
+      "size": [
+        2.4,
+        2.4
+      ],
+      "need": 0.8
+    }
+  ],
+  "lights": [
+    {
+      "pos": [
+        0,
+        6,
+        -7
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        6,
+        -12
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        2,
+        6,
+        1
+      ],
+      "panel": true
+    }
+  ],
+  "decor": [
+    {
+      "kind": "bench",
+      "pos": [
+        -6.2,
+        0,
+        1
+      ],
+      "rot": 90,
+      "len": 3
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      3
+    ],
+    "yaw": -90
+  },
+  "solution": [
+    {
+      "walk": [
+        1,
+        0
+      ]
+    },
+    {
+      "shoot": [
+        5.5,
+        0.5,
+        0
+      ],
+      "frame": 3
+    },
+    {
+      "walk": [
+        0,
+        -2
+      ]
+    },
+    {
+      "develop": [
+        0,
+        0.02,
+        -9
+      ],
+      "rot": 1
+    },
+    {
+      "walk": [
+        1.5,
+        -5
+      ]
+    },
+    {
+      "walk": [
+        1.5,
+        -13
+      ]
+    },
+    {
+      "exit": true
+    }
+  ]
+}

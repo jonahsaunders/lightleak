@@ -1,0 +1,120 @@
+{
+  "id": "negative",
+  "name": "Negative",
+  "wide": true,
+  "film": {
+    "neg": 1
+  },
+  "hint": "This roll is negative film. Develop a negative on the red emulsion and it dissolves.",
+  "room": {
+    "x0": -6,
+    "x1": 6,
+    "z0": -10,
+    "z1": 6,
+    "h": 5,
+    "door": {
+      "x": 0
+    }
+  },
+  "blocks": [
+    {
+      "min": [
+        -1.6,
+        0,
+        -9.8
+      ],
+      "max": [
+        1.6,
+        3.2,
+        -9.3
+      ],
+      "mat": "emulsion"
+    },
+    {
+      "min": [
+        3,
+        0,
+        -0.5
+      ],
+      "max": [
+        4,
+        0.6,
+        0.5
+      ],
+      "mat": "ledge"
+    }
+  ],
+  "props": [
+    {
+      "type": "crate",
+      "pos": [
+        3.5,
+        0.6,
+        0
+      ],
+      "size": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "pos": [
+        0,
+        5,
+        1
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        5,
+        -6
+      ],
+      "panel": true
+    }
+  ],
+  "decor": [
+    {
+      "kind": "bench",
+      "pos": [
+        -5.2,
+        0,
+        -2
+      ],
+      "rot": 90,
+      "len": 3
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      3
+    ],
+    "yaw": 0
+  },
+  "solution": [
+    {
+      "shoot": [
+        3.5,
+        1.0,
+        0
+      ],
+      "film": "neg"
+    },
+    {
+      "develop": [
+        0,
+        1.5,
+        -9.3
+      ]
+    },
+    {
+      "exit": true
+    }
+  ]
+}

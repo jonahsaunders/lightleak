@@ -1,0 +1,202 @@
+{
+  "id": "wide-angle",
+  "name": "Wide Angle",
+  "hint": "The plate is in a low cubby. Photograph from far away, develop up close, and whatever you shot comes out small.",
+  "film": {
+    "pos": 3
+  },
+  "room": {
+    "x0": -6,
+    "x1": 6,
+    "z0": -14,
+    "z1": 12,
+    "h": 7,
+    "door": {
+      "x": -3
+    }
+  },
+  "blocks": [
+    {
+      "min": [
+        1.6,
+        0,
+        -14
+      ],
+      "max": [
+        2,
+        1,
+        -11.6
+      ],
+      "mat": "ledge"
+    },
+    {
+      "min": [
+        4,
+        0,
+        -14
+      ],
+      "max": [
+        4.4,
+        1,
+        -11.6
+      ],
+      "mat": "ledge"
+    },
+    {
+      "min": [
+        1.6,
+        1,
+        -14
+      ],
+      "max": [
+        4.4,
+        1.4,
+        -11.6
+      ],
+      "mat": "ledge"
+    },
+    {
+      "min": [
+        -6,
+        0,
+        0.9
+      ],
+      "max": [
+        6,
+        7,
+        1
+      ],
+      "mat": "glass"
+    },
+    {
+      "min": [
+        -2,
+        0,
+        7
+      ],
+      "max": [
+        2,
+        0.3,
+        10
+      ],
+      "mat": "ledge"
+    }
+  ],
+  "plates": [
+    {
+      "pos": [
+        3,
+        0,
+        -12.8
+      ],
+      "size": [
+        1.6,
+        1.6
+      ],
+      "need": 0.2,
+      "label": 2.2
+    }
+  ],
+  "props": [
+    {
+      "type": "steel",
+      "pos": [
+        0,
+        0.3,
+        8.5
+      ],
+      "size": [
+        2.4,
+        2.4,
+        2.4
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "pos": [
+        0,
+        7,
+        8.5
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        7,
+        -4
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        7,
+        -11
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        3,
+        0.7,
+        -12.8
+      ],
+      "color": "#ff6a4a",
+      "intensity": 0.5,
+      "dist": 3
+    }
+  ],
+  "decor": [
+    {
+      "kind": "bench",
+      "pos": [
+        -5.2,
+        0,
+        -8
+      ],
+      "rot": 90,
+      "len": 3
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      -3
+    ],
+    "yaw": 180
+  },
+  "solution": [
+    {
+      "walk": [
+        0,
+        -11
+      ]
+    },
+    {
+      "shoot": [
+        0,
+        1.5,
+        8.5
+      ]
+    },
+    {
+      "walk": [
+        3,
+        -9.5
+      ]
+    },
+    {
+      "develop": [
+        3,
+        0.08,
+        -12.8
+      ]
+    },
+    {
+      "exit": true
+    }
+  ]
+}
