@@ -4,6 +4,7 @@ import { CAMERA, NAMES } from './config.js';
 import { framedProps, solvePlacement, frameRect, aimedProp } from './photo.js';
 import { grainDataURL } from './materials.js';
 import { SFX } from './audio.js';
+import { bossHUD } from './boss.js';
 
 const THREE = window.THREE;
 const $ = id => document.getElementById(id);
@@ -23,6 +24,13 @@ export function toast(msg) {
 export function flash() {
   const fl = $('flash');
   fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+}
+
+// Switching film: the whole screen flips to negative for a moment.
+export function filmSwitched() {
+  const f = $('negflash');
+  f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+  toast(G.filmMode === 'neg' ? 'Negative film loaded. What you develop will dissolve things.' : 'Film loaded.');
 }
 
 export function levelNumber(id) {
@@ -67,6 +75,7 @@ export function updateRoll() {
     film.appendChild(row);
   }
   const hasNeg = (L.def.film?.neg ?? 0) > 0;
+  $('hud').classList.toggle('negative', hasNeg && G.filmMode === 'neg');
   const hasFilm = hasNeg || (L.def.film?.pos ?? 0) > 0;
   $('roll').style.display = hasFilm ? '' : 'none';
   if (!hasFilm) { $('keys').innerHTML = '<kbd>R</kbd> restart'; return; }
@@ -131,11 +140,29 @@ function setLit(props, color) {
   for (const p of lit) if (!p.flash) p.mesh.material.emissive.copy(color);
 }
 
+// The fight's status: goal, straps left, and how exposed you are.
+let lastBoss = '';
+function updateBossBar() {
+  const s = bossHUD();
+  $('bossbar').hidden = !s; $('exposure').hidden = !s || s.defeated;
+  if (!s) { $('overexposure').style.opacity = 0; lastBoss = ''; return; }
+  const key = JSON.stringify(s);
+  if (key === lastBoss) return;
+  lastBoss = key;
+  $('boss-goal').textContent = s.goal;
+  $('boss-straps').innerHTML = Array.from({ length: s.straps }, (_, i) => `<div class="strap${i < s.cut ? ' cut' : ''}"></div>`).join('');
+  $('exposure-pips').innerHTML = Array.from({ length: s.hits }, (_, i) => `<span class="pip${i < s.exposure ? ' on' : ''}"></span>`).join('');
+  $('exposure-pips').style.display = 'inline-flex'; $('exposure-pips').style.gap = '6px';
+  $('overexposure').style.opacity = (s.exposure / s.hits) * 0.55;
+}
+
 export function updateAim() {
   ensureGhost();
+  updateBossBar();
   const L = G.L, prompt = $('prompt'), vf = $('vf');
   ghost.group.visible = false;
   vf.hidden = !G.aim;
+  $('hud').classList.toggle('aiming', G.aim);
   $('roll').hidden = G.aim;
   $('cardread').hidden = true;
   if (!L || L.finished) { prompt.textContent = ''; setLit([], NONE); return; }
@@ -173,6 +200,7 @@ export function updateAim() {
   }
   const photo = G.roll[G.selected];
   if (!photo) { setLit([], NONE); prompt.textContent = ''; readCard(); return; }
+  if (photo.keepsake) { setLit([], NONE); prompt.textContent = 'A photograph of the Curator.'; return; }
   const pl = solvePlacement(photo);
   if (!pl) { setLit([], NONE); prompt.innerHTML = '<span class="bad">NO SURFACE</span>'; return; }
   ghost.group.visible = true;

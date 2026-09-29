@@ -57,13 +57,13 @@ Mouse sensitivity is on the title screen.
 
 The archive is an automated photographic collection run by the Curator: a soft-spoken, fastidious caretaker that preserves things by photographing them. It preserved the staff the same way. You are a print, the sixteenth copy of a staff member called Wren Adeyemi, who came loose from the drying line. The Curator talks you through the puzzles as "calibration", and index cards pinned to the walls (look at one up close to read it) fill in the rest. It gets less friendly once you start dissolving things.
 
-**The Enlarger.** The last room is a giant enlarger's easel, and you're standing on it. Every few seconds the Curator locks onto where you are, shows a red ring and fires a flash. If you're caught in the open, you're rewound to just after your last action. Anything solid between you and the lens blocks it; glass doesn't. To win:
+**The Enlarger.** The Curator itself is a huge enlarger head hanging over the last room from three red emulsion straps. Its lens follows you and throws a spotlight with real shadows. Every few seconds it locks on (a red ring, the lens turning red) and flashes. If the lens can see you there, you take a mark of **exposure**. Three marks rewind you to just after your last action, and marks fade if you stay clear. Anything solid between you and the lens protects you; glass doesn't. A bar at the top shows the goal and how many straps are left.
 
-1. Load all three plates to slide its shutter open.
-2. Dissolve the emulsion lid over its bulb with a negative.
-3. Develop something heavy (10 t or more) against the ceiling so it drops onto the bulb. Do it three times.
+1. Load its two counterweight plates. The steel sleeves around its straps slide away.
+2. Dissolve the three straps with negatives. It sags with each one, then crashes to the floor.
+3. Photograph it while it lies there staring at you. That last shot needs no film.
 
-Lines live in each level's `story` field and play once per visit on events: `start`, `photo`, `negative`, `develop`, `dissolve`, `plate`, `door`, `fall`, `undo`, `zone:<name>`, and the boss's `dodged`, `overexposed`, `phase2`, `phase3`, `hit1`, `hit2` and `defeated`. Cards are `decor` entries with `"kind": "card"`, a `title` and `text`.
+Lines live in each level's `story` field and play once per visit on events: `start`, `photo`, `negative`, `develop`, `dissolve`, `plate`, `door`, `fall`, `undo`, `zone:<name>`, and the boss's `dodged`, `exposed`, `overexposed`, `phase2`, `cut1`, `cut2`, `falling`, `phase3` and `defeated`. Cards are `decor` entries with `"kind": "card"`, a `title` and `text`.
 
 ## How it looks
 
@@ -96,7 +96,7 @@ Each level carries a `solution`, either scripted steps (`walk`, `shoot`, `develo
 
 | Path | What's there |
 | --- | --- |
-| `js/main.js` | Boot, the fixed-step loop, input, menus, level flow |
+| `js/main.js` | Boot, the fixed-step loop, input, menus, level flow (every level is unlocked from the start) |
 | `js/level.js` | Building levels, physics bodies, plates, the door, undo snapshots |
 | `js/photo.js` | Framing, taking photos, placement, developing, negatives |
 | `js/player.js` | The character controller |

@@ -49,6 +49,21 @@
   #vf .rec { position: absolute; left: 14px; top: 12px; font: 700 12px var(--mono); color: var(--safe-2); }
   #vf .rec::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--safe); margin-right: 6px; }
   #vf .size { position: absolute; right: 14px; top: 12px; font: 700 12px var(--mono); color: var(--paper); text-shadow: 0 1px 2px #000; }
+  /* negative film loaded: sprocketed film-strip edges, an inverted viewfinder, a label, a flash on switching */
+  .negstrip { position: absolute; left: 0; right: 0; height: 16px; background:
+      radial-gradient(ellipse 5px 4px at 50% 50%, #120f0d 88%, transparent 100%) 0 0 / 22px 16px repeat-x,
+      linear-gradient(#b8612b, #9c4f22); opacity: 0; transition: opacity .25s; box-shadow: 0 0 12px #0008; }
+  .negstrip.top { top: 0; } .negstrip.bottom { bottom: 0; }
+  #hud.negative .negstrip { opacity: .85; }
+  #neglabel { position: absolute; left: 50%; top: calc(50% - 34px); transform: translateX(-50%); font: 700 11px var(--mono); letter-spacing: .22em; color: #120f0d; background: #d98a4f; padding: 2px 8px; border-radius: 2px; opacity: 0; transition: opacity .25s; white-space: nowrap; }
+  #hud.negative #neglabel { opacity: .9; }
+  #hud.negative.aiming #neglabel { opacity: 0; }
+  #vf.negative .read span, #vf.negative .size, #vf.negative .rec { background: #120f0dcc; padding: 2px 6px; border-radius: 2px; }
+  #hud.negative #crosshair { background: transparent; box-shadow: 0 0 0 2px #d98a4f; width: 8px; height: 8px; margin: -4px 0 0 -4px; }
+  #vf.negative { backdrop-filter: invert(1) hue-rotate(180deg) contrast(1.1); }
+  #negflash { position: absolute; inset: 0; backdrop-filter: invert(1); opacity: 0; pointer-events: none; }
+  #negflash.go { animation: negflash .4s ease-out; }
+  @keyframes negflash { from { opacity: 1; } to { opacity: 0; } }
   #vf.negative .rec { color: var(--paper); }
   #vf.negative .c { border-color: var(--safe-2); }
   #vf .read { position: absolute; left: 14px; bottom: 12px; right: 14px; font: 600 12px var(--mono); display: flex; justify-content: space-between; text-shadow: 0 1px 2px #000; }
@@ -118,6 +133,17 @@
   #settings select { background: var(--ink-2); color: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 3px 6px; font: inherit; }
   #settings { margin-top: 16px; color: var(--dim); font-size: 14px; display: flex; gap: 10px; align-items: center; }
 
+  /* the final fight: name, current goal, straps left, and your exposure */
+  #bossbar { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); width: min(460px, calc(100vw - 48px)); text-align: center; }
+  #bossbar .name { font: 800 13px var(--mono); letter-spacing: .3em; color: var(--safe-2); }
+  #bossbar .straps { display: flex; gap: 6px; justify-content: center; margin: 6px 0 5px; }
+  #bossbar .strap { width: 46px; height: 8px; background: #d8452f; border-radius: 2px; box-shadow: 0 0 8px #d8452f88; }
+  #bossbar .strap.cut { background: #3a2a24; box-shadow: none; }
+  #bossbar .goal { font: 600 14px var(--ui); background: #0b0807b3; display: inline-block; padding: 3px 12px; border-radius: 3px; }
+  #exposure { position: absolute; left: 50%; bottom: 150px; transform: translateX(-50%); font: 700 11px var(--mono); letter-spacing: .2em; color: var(--paper); text-shadow: 0 1px 2px #000; display: flex; gap: 6px; align-items: center; }
+  #exposure .pip { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #efe6d299; }
+  #exposure .pip.on { background: #fff4e0; border-color: #fff4e0; box-shadow: 0 0 12px #fff4e0; }
+  #overexposure { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 35%, #fff6e8 100%); opacity: 0; transition: opacity .4s; }
   /* the Curator's subtitles, index cards, the enlarger's flash */
   #subtitle { position: absolute; left: 50%; bottom: 168px; transform: translateX(-50%); width: min(760px, calc(100vw - 48px)); text-align: center; }
   #subtitle .who { font: 700 11px var(--mono); letter-spacing: .24em; color: var(--safe-2); margin-bottom: 4px; }
@@ -176,7 +202,13 @@
     <div id="vf-frame" hidden></div>
     <div class="read"><span id="vf-subject">No subject</span><span id="vf-dist"></span></div>
   </div>
+  <div class="negstrip top"></div><div class="negstrip bottom"></div>
+  <div id="negflash"></div>
+  <div id="overexposure"></div>
+  <div id="bossbar" hidden><div class="name">THE CURATOR</div><div class="straps" id="boss-straps"></div><div class="goal" id="boss-goal"></div></div>
+  <div id="exposure" hidden>EXPOSURE <span id="exposure-pips"></span></div>
   <div id="crosshair"></div>
+  <div id="neglabel">NEGATIVE · T</div>
   <div id="prompt"></div>
   <div id="film"></div>
   <div id="keys"></div>

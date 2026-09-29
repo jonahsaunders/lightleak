@@ -7,7 +7,7 @@ import { setQuality, getQuality, renderFrame, resizePost, setExposure } from './
 import { loadLevel, stepWorld, playerInExit, restore, pushUndo, snapshot } from './level.js';
 import { P, stepPlayer, eyePosition } from './player.js';
 import { takePhoto, develop, discard } from './photo.js';
-import { initHUD, toast, flash, showTitle, updateRoll, updateAim, chapterOf } from './hud.js';
+import { initHUD, toast, flash, showTitle, updateRoll, updateAim, chapterOf, filmSwitched } from './hud.js';
 import { SFX, unlockAudio } from './audio.js';
 import { runTests, Driver } from './driver.js';
 import { Editor } from './editor.js';
@@ -49,7 +49,8 @@ const store = {
   set(v) { try { localStorage.setItem('lightleak.v2', JSON.stringify(v)); } catch (e) { /* storage unavailable */ } },
 };
 const progress = Object.assign({ done: {} }, store.get());
-const unlocked = id => { const i = G.order.indexOf(id); return i <= 0 || progress.done[G.order[i - 1]] || progress.done[id]; };
+// Every level is open from the start; finished ones are marked in the menu.
+const unlocked = () => true;
 const nextUp = () => G.order.find(id => !progress.done[id]) || G.order[0];
 
 // ---------- input ----------
@@ -144,7 +145,7 @@ function handle(a) {
   }
   else if (name === 'film') {
     const other = G.filmMode === 'pos' ? 'neg' : 'pos';
-    if ((L.def.film?.[other] ?? 0) > 0) { G.filmMode = other; if (!G.headless) SFX.click(); emit('rollChanged'); }
+    if ((L.def.film?.[other] ?? 0) > 0) { G.filmMode = other; if (!G.headless) { SFX.click(); filmSwitched(); } emit('rollChanged'); }
   } else if (name === 'undo') {
     const s = G.undo.pop();
     if (s) { restore(s); G.checkpoint = snapshot(); if (!G.headless) SFX.undo(); toast('Undone.'); storyEvent('undo'); live.yaw = P.yaw; live.pitch = P.pitch; }

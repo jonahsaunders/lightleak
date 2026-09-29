@@ -1,136 +1,194 @@
-// The final chamber: the Curator's enlarger. The floor is its easel and you are the print.
+// The final chamber: the Curator itself, a huge enlarger head hanging from three emulsion straps.
 //
-//   Attack  every few seconds it locks onto where you stand, warns for a moment, then flashes.
-//           Caught in the open inside the ring, you're overexposed and rewound. Anything solid
-//           between you and the lens (glass doesn't count) keeps you safe.
-//   Phase 1 load every plate: the steel shutter over its lamp slides open.
-//   Phase 2 dissolve the emulsion lid under the shutter with a negative.
-//   Phase 3 drop something heavy onto the bulb, `hp` times. Develop it against the ceiling.
+//   It watches  the lens swivels after you and throws a spotlight with real shadows.
+//   It flashes  every few seconds it locks onto where you are, turns red, and flashes. If its lens
+//               can see you there (glass doesn't hide you; anything solid does), you take a mark of
+//               exposure. Three marks and you're rewound; marks fade if you stay clear for a while.
+//   Phase 1     load both counterweight plates: the steel sleeves around the straps slide away.
+//   Phase 2     dissolve the three straps with negatives. It tilts with each one, then falls.
+//   Phase 3     it lies on the floor with its lens towards you. Photograph it.
 //
 // Everything here runs in the fixed tick, so it's deterministic like the rest of the simulation.
 import { G, emit } from './state.js';
 import { DT, PLAYER } from './config.js';
 import { MAT, worldBox } from './materials.js';
 import { P } from './player.js';
-import { openDoor, removeProp } from './level.js';
+import { openDoor } from './level.js';
 import { SFX } from './audio.js';
 import { storyEvent } from './story.js';
 
 const THREE = window.THREE;
-const V3 = THREE.Vector3;
+const V3 = THREE.Vector3, Q = THREE.Quaternion;
+const HOUSING = [4, 3, 4];
 
 export function createBoss(cfg) {
   const L = G.L, R = G.R;
-  const g = new THREE.Group();
-  L.group.add(g);
-  const lens = new V3(...cfg.lens);
-  const bellows = new THREE.MeshStandardMaterial({ color: 0x141211, roughness: 0.9 });
-  const box = (w, h, d, x, y, z, m = MAT.door) => {
-    const o = new THREE.Mesh(worldBox([x - w / 2, y - h / 2, z - d / 2], [x + w / 2, y + h / 2, z + d / 2]), m);
-    o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; g.add(o); return o;
-  };
+  const root = new THREE.Group();   // the whole head: moves and tilts
+  L.group.add(root);
+  const add = (parent, geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m; };
+  const box = (parent, w, h, d, x, y, z, mat = MAT.door) => add(parent, worldBox([x - w / 2, y - h / 2, z - d / 2], [x + w / 2, y + h / 2, z + d / 2]), mat, x, y, z);
+  const bellowsMat = new THREE.MeshStandardMaterial({ color: 0x141211, roughness: 0.9 });
 
-  // the machine: a ribbed steel mast on the north wall, the lamp housing, pleated bellows and the lens
-  const [lx, ly, lz] = cfg.lens;
-  box(3, ly + 7, 2, lx, (ly + 7) / 2, lz - 4.5);
-  box(0.9, ly + 7, 0.5, lx - 1.95, (ly + 7) / 2, lz - 4.2, MAT.trim);
-  box(0.9, ly + 7, 0.5, lx + 1.95, (ly + 7) / 2, lz - 4.2, MAT.trim);
-  box(5, 3.6, 5, lx, ly + 3.9, lz);
-  box(5.3, 0.25, 5.3, lx, ly + 2.2, lz, MAT.trim);                       // collar under the housing
-  box(5.3, 0.25, 5.3, lx, ly + 5.6, lz, MAT.trim);                       // and over it
-  box(1.2, 2.2, 1.2, lx, ly + 3.9, lz - 3.2, MAT.trim);                  // arm back to the mast
-  for (let i = 0; i < 7; i++) box(3.4 - i * 0.28, 0.2, 3.4 - i * 0.28, lx, ly + 1.95 - i * 0.26, lz, i % 2 ? MAT.trim : bellows);
-  box(1.3, 0.3, 1.3, lx, ly + 0.15, lz, MAT.trim);
-  // status lamp on the housing
-  const status = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 10), MAT.safelight);
-  status.position.set(lx + 1.8, ly + 4.9, lz + 2.52); g.add(status);
-  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0xffd6b0, emissiveIntensity: 0.4 });
-  const eye = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.0, 0.25, 32), eyeMat);
-  eye.position.set(lx, ly, lz); g.add(eye);
-  const lamp = new THREE.SpotLight(0xffe2c4, 0, 40, 0.5, 0.6, 1.5);
-  lamp.position.copy(lens); lamp.target.position.set(lx, 0, lz + 10);
-  g.add(lamp, lamp.target);
+  // housing (centred on the root), collars, a status lamp
+  const [hw, hh, hd] = HOUSING;
+  box(root, hw, hh, hd, 0, 0, 0);
+  box(root, hw + 0.3, 0.22, hd + 0.3, 0, -hh / 2 + 0.1, 0, MAT.trim);
+  box(root, hw + 0.3, 0.22, hd + 0.3, 0, hh / 2 - 0.1, 0, MAT.trim);
+  const status = add(root, new THREE.SphereGeometry(0.14, 16, 10), MAT.safelight, hw / 2 - 0.4, 0.6, hd / 2 + 0.02);
+  status.castShadow = false;
 
-  // the bulb, and a steel shutter over its cage
-  const bulbMat = new THREE.MeshStandardMaterial({ color: 0xfff1d6, emissive: 0xffc27a, emissiveIntensity: 2.2, roughness: 0.2 });
-  const bulb = new THREE.Mesh(new THREE.SphereGeometry(cfg.bulbRadius, 32, 20), bulbMat);
-  bulb.position.set(...cfg.bulb); g.add(bulb);
-  const bulbLight = new THREE.PointLight(0xffc27a, 1.4, 12, 2);
-  bulbLight.position.copy(bulb.position); g.add(bulbLight);
-  const bulbCollider = L.world.createCollider(R.ColliderDesc.ball(cfg.bulbRadius).setTranslation(...cfg.bulb));
-  L.colliders.set(bulbCollider.handle, { kind: 'static', ref: { kind: 'static' } });
+  // the lens assembly hangs under the housing and swivels towards its target
+  const lens = new THREE.Group();
+  lens.position.set(0, -hh / 2, 0);
+  root.add(lens);
+  for (let i = 0; i < 6; i++) box(lens, 2.6 - i * 0.22, 0.2, 2.6 - i * 0.22, 0, -0.14 - i * 0.26, 0, i % 2 ? MAT.trim : bellowsMat);
+  const tipY = -1.75;
+  box(lens, 1.2, 0.3, 1.2, 0, tipY + 0.2, 0, MAT.trim);
+  // the lens: dark glass with a glowing iris in the middle
+  const glass = new THREE.MeshPhysicalMaterial({ color: 0x0a0c0e, roughness: 0.05, metalness: 0.2, clearcoat: 1, envMapIntensity: 1.5 });
+  const eye = add(lens, new THREE.CylinderGeometry(0.7, 0.8, 0.2, 32), glass, 0, tipY, 0);
+  eye.castShadow = false;
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0xffd6b0, emissiveIntensity: 0.6 });
+  const iris = add(lens, new THREE.CylinderGeometry(0.28, 0.28, 0.02, 32), eyeMat, 0, tipY - 0.105, 0);
+  iris.castShadow = false;
+  // the bulb inside, only really visible once it's on the floor
+  const bulbMat = new THREE.MeshStandardMaterial({ color: 0xfff1d6, emissive: 0xffc27a, emissiveIntensity: 3 });
+  const bulb = add(lens, new THREE.SphereGeometry(0.55, 32, 20), bulbMat, 0, tipY - 0.15, 0);
+  bulb.castShadow = false; bulb.visible = false;
+  const tip = new THREE.Object3D(); tip.position.set(0, tipY - 0.3, 0); lens.add(tip);
 
-  const s = cfg.shutter;
-  const size = s.max.map((m, i) => m - s.min[i]);
-  const home = s.min.map((m, i) => m + size[i] / 2);
-  const shutterBody = L.world.createRigidBody(R.RigidBodyDesc.kinematicPositionBased().setTranslation(...home));
-  const shutterCollider = L.world.createCollider(R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2), shutterBody);
-  L.colliders.set(shutterCollider.handle, { kind: 'door', ref: {} });
-  const shutter = new THREE.Mesh(worldBox(s.min, s.max), MAT.door);
-  shutter.position.set(...home); shutter.castShadow = true; shutter.userData.kind = 'door';
-  g.add(shutter); L.rayMeshes.push(shutter);
+  // its light: a real spotlight with shadows, so cover is visible
+  const spot = new THREE.SpotLight(0xffe6cc, 7, 40, 0.34, 0.35, 1);
+  spot.castShadow = true;
+  spot.shadow.mapSize.set(1024, 1024);
+  spot.shadow.camera.near = 0.5; spot.shadow.camera.far = 40;
+  spot.shadow.bias = -0.0008;
+  L.group.add(spot, spot.target);
 
-  // the warning ring on the floor
-  const ring = new THREE.Mesh(new THREE.RingGeometry(cfg.radius - 0.18, cfg.radius, 48),
+  // the warning ring
+  const ring = new THREE.Mesh(new THREE.RingGeometry(cfg.radius - 0.16, cfg.radius, 48),
     new THREE.MeshBasicMaterial({ color: 0xff2a10, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false, toneMapped: false }));
-  ring.rotation.x = -Math.PI / 2; ring.visible = false; ring.renderOrder = 4;
-  g.add(ring);
+  ring.rotation.x = -Math.PI / 2; ring.visible = false; ring.renderOrder = 4; ring.userData.noAO = true;
+  L.group.add(ring);
 
-  const lid = L.statics.find(st => st.src && st.src.tag === 'lid');
-  L.boss = {
-    cfg, lens, eye, eyeMat, lamp, bulb, bulbMat, bulbLight, bulbCollider, shutter, shutterBody, home, ring, lid,
+  // straps are ordinary emulsion blocks in the level (tag "strap"); each gets a sliding steel sleeve
+  const straps = L.statics.filter(s => s.src && s.src.tag === 'strap');
+  const sleeves = straps.map(st => {
+    const pad = 0.18;
+    const min = [st.min.x - pad, st.min.y, st.min.z - pad], max = [st.max.x + pad, st.max.y, st.max.z + pad];
+    const c = min.map((m, i) => (m + max[i]) / 2);
+    const body = L.world.createRigidBody(R.RigidBodyDesc.kinematicPositionBased().setTranslation(...c));
+    const col = L.world.createCollider(R.ColliderDesc.cuboid((max[0] - min[0]) / 2, (max[1] - min[1]) / 2, (max[2] - min[2]) / 2), body);
+    L.colliders.set(col.handle, { kind: 'door', ref: {} });
+    const mesh = new THREE.Mesh(worldBox(min, max), MAT.door);
+    mesh.position.set(...c); mesh.castShadow = true; mesh.userData.kind = 'door';
+    L.group.add(mesh); L.rayMeshes.push(mesh);
+    return { body, mesh, home: c };
+  });
+
+  const b = L.boss = {
+    cfg, root, lens, tip, eye, iris, eyeMat, bulb, bulbMat, status, spot, ring, straps, sleeves, headCollider: null,
+    aim: new V3(cfg.head[0], 0, cfg.head[2] + 4),
     // simulation state (snapshotted)
-    phase: 1, hp: cfg.hp, t: cfg.grace, attack: null, shutterT: 0, defeated: false, deadT: 0, zapped: false,
+    phase: 1, t: cfg.grace, attack: null, sleeveT: 0, cuts: 0, fallT: 0, warnT: 0, defeated: false, deadT: 0,
+    // not snapshotted
+    exposure: 0, calm: 0, zapped: false,
   };
+  setHeadCollider(b);
+  pose(b);
+  aimLens(b);
+}
+
+// Where the head is and how it's tilted, from the simulation state.
+function headPose(b) {
+  const cfg = b.cfg, pos = new V3(...cfg.head), q = new Q();
+  if (b.fallT <= 0) {
+    // lean towards each cut strap
+    for (const st of b.straps) if (st.erased) {
+      const dx = (st.min.x + st.max.x) / 2 - pos.x, dz = (st.min.z + st.max.z) / 2 - pos.z;
+      const axis = new V3(dz, 0, -dx).normalize();
+      q.premultiply(new Q().setFromAxisAngle(axis, -0.13));
+    }
+    if (b.warnT > 0) pos.y += Math.sin(b.warnT * 40) * 0.05; // shuddering before it goes
+    return { pos, q };
+  }
+  // falling, then lying on its back with the lens towards the room
+  const e = Math.min(1, b.fallT), t = e * e;
+  pos.lerp(new V3(...cfg.fallen), t);
+  q.setFromAxisAngle(new V3(1, 0, 0), -Math.PI / 2 * t);
+  return { pos, q };
+}
+
+function pose(b) {
+  const { pos, q } = headPose(b);
+  b.root.position.copy(pos); b.root.quaternion.copy(q);
+  // sleeves slide up into the ceiling
+  const e = 1 - Math.pow(1 - b.sleeveT, 3);
+  for (const s of b.sleeves) {
+    const p = { x: s.home[0], y: s.home[1] + 3.4 * e, z: s.home[2] };
+    s.body.setNextKinematicTranslation(p); s.body.setTranslation(p, true);
+    s.mesh.position.set(p.x, p.y, p.z);
+  }
+  b.bulb.visible = b.fallT >= 1 && !b.defeated;
+}
+
+function setHeadCollider(b) {
+  const L = G.L, R = G.R;
+  if (b.headCollider) { L.colliders.delete(b.headCollider.handle); L.world.removeCollider(b.headCollider, true); }
+  const { pos, q } = headPose(b);
+  const desc = R.ColliderDesc.cuboid(HOUSING[0] / 2, HOUSING[1] / 2 + 0.9, HOUSING[2] / 2)
+    .setTranslation(pos.x, pos.y, pos.z).setRotation({ x: q.x, y: q.y, z: q.z, w: q.w });
+  b.headCollider = L.world.createCollider(desc);
+  L.colliders.set(b.headCollider.handle, { kind: 'static', ref: { kind: 'static' } });
 }
 
 export function bossState() {
   const b = G.L.boss;
-  return b && { phase: b.phase, hp: b.hp, t: b.t, attack: b.attack && { ...b.attack }, shutterT: b.shutterT, defeated: b.defeated, deadT: b.deadT };
+  return b && { phase: b.phase, t: b.t, attack: b.attack && { ...b.attack }, sleeveT: b.sleeveT, cuts: b.cuts, fallT: b.fallT, warnT: b.warnT, defeated: b.defeated, deadT: b.deadT, aim: b.aim.toArray() };
 }
 
 export function restoreBoss(s) {
   const b = G.L.boss;
   if (!b || !s) return;
-  Object.assign(b, s, { attack: null, zapped: false });
+  Object.assign(b, s, { attack: null, zapped: false, exposure: 0, calm: 0 });
+  b.aim = new V3().fromArray(s.aim);
   b.t = Math.max(b.t, 2.5); // a moment to breathe after a rewind
-  if (!b.defeated && b.bulbRemoved) { // undone past the finishing blow
-    b.bulbCollider = G.L.world.createCollider(G.R.ColliderDesc.ball(b.cfg.bulbRadius).setTranslation(...b.cfg.bulb));
-    G.L.colliders.set(b.bulbCollider.handle, { kind: 'static', ref: { kind: 'static' } });
-    b.bulbRemoved = false;
-  }
-  placeShutter(b);
   b.ring.visible = false;
-  b.bulb.visible = b.hp > 0;
-}
-
-function placeShutter(b) {
-  const m = b.cfg.shutter.move, e = 1 - Math.pow(1 - b.shutterT, 3);
-  const p = { x: b.home[0] + m[0] * e, y: b.home[1] + m[1] * e, z: b.home[2] + m[2] * e };
-  b.shutterBody.setNextKinematicTranslation(p);
-  b.shutterBody.setTranslation(p, true);
-  b.shutter.position.set(p.x, p.y, p.z);
-}
-
-function touching(a, c) {
-  let n = 0;
-  G.L.world.contactPair(a, c, m => { n += m.numContacts(); });
-  return n > 0;
+  pose(b);
+  setHeadCollider(b);
+  aimLens(b);
 }
 
 // Can the lens see the player? Glass lets light through; everything else blocks it.
-function exposed() {
+function lensSees(from) {
   const L = G.L, R = G.R, b = L.boss;
   const head = { x: P.pos.x, y: P.pos.y + PLAYER.height * 0.6, z: P.pos.z };
-  const d = new V3(head.x - b.lens.x, head.y - b.lens.y, head.z - b.lens.z);
+  const d = new V3(head.x - from.x, head.y - from.y, head.z - from.z);
   const dist = d.length();
   d.normalize();
-  const hit = L.world.castRay(new R.Ray(b.lens, { x: d.x, y: d.y, z: d.z }), dist, true, R.QueryFilterFlags.EXCLUDE_SENSORS, undefined, undefined, P.body,
+  const hit = L.world.castRay(new R.Ray(from, { x: d.x, y: d.y, z: d.z }), dist, true, R.QueryFilterFlags.EXCLUDE_SENSORS, undefined, b.headCollider, P.body,
     c => { const i = L.colliders.get(c.handle); return !i || i.kind !== 'glass'; });
   return !hit || hit.timeOfImpact >= dist - 0.3;
 }
 
-// Runs right after the physics step, before props record their velocity for the tick.
+// Called by the camera: is the Curator itself in the shot? Ends the fight once it's on the floor.
+export function photographBoss() {
+  const L = G.L, b = L && L.boss;
+  if (!b || b.defeated || b.fallT < 1) return false;
+  const ray = new THREE.Raycaster();
+  ray.setFromCamera(new THREE.Vector2(0, 0), G.camera);
+  ray.far = 40;
+  b.root.updateMatrixWorld(true);
+  const hits = ray.intersectObjects([b.bulb, b.eye, b.iris, ...L.rayMeshes], false);
+  const first = hits.find(h => h.object.userData.kind !== 'glass');
+  if (!first || ![b.bulb, b.eye, b.iris].includes(first.object)) return false;
+  b.defeated = true; b.attack = null; b.ring.visible = false;
+  openDoor(true);
+  if (!G.headless) SFX.dying();
+  storyEvent('defeated');
+  return true;
+}
+
 export function stepBoss() {
   const L = G.L, b = L.boss;
   if (!b) return;
@@ -138,71 +196,130 @@ export function stepBoss() {
   if (b.defeated) {
     b.deadT += DT;
     b.eyeMat.emissiveIntensity = Math.max(0, 3 - b.deadT * 2);
-    b.lamp.intensity = 0; b.ring.visible = false;
+    b.bulbMat.emissiveIntensity = Math.max(0, 3 - b.deadT * 1.5);
+    b.spot.intensity = Math.max(0, b.spot.intensity - DT * 3);
+    b.status.visible = false;
+    b.ring.visible = false;
     return;
   }
-  // phase 1 → 2: every plate loaded opens the shutter (and it stays open)
+
+  // phase 1 → 2: both counterweights loaded, and the sleeves slide away (for good)
   if (b.phase === 1 && L.plates.length && L.plates.every(p => p.on)) {
     b.phase = 2;
     if (!G.headless) SFX.shutter2();
     storyEvent('phase2');
   }
-  if (b.phase >= 2 && b.shutterT < 1) { b.shutterT = Math.min(1, b.shutterT + DT / 1.6); placeShutter(b); }
-  // phase 2 → 3: the emulsion lid is gone
-  if (b.phase === 2 && b.lid && b.lid.erased) { b.phase = 3; storyEvent('phase3'); }
-  // something heavy dropped on the bulb
-  if (b.phase === 3) {
-    for (const p of L.props.slice()) {
-      if (p.mass >= cfg.hitMass && p.fallVy < -4 && touching(b.bulbCollider, p.collider)) {
-        removeProp(p);
-        b.hp--;
+  if (b.phase >= 2 && b.sleeveT < 1) { b.sleeveT = Math.min(1, b.sleeveT + DT / 1.5); pose(b); }
+
+  // phase 2: straps being cut
+  const cuts = b.straps.filter(s => s.erased).length;
+  if (cuts !== b.cuts) {
+    b.cuts = cuts;
+    if (!G.headless) SFX.boom();
+    emit('shake', 0.35);
+    if (cuts < b.straps.length) storyEvent(`cut${cuts}`);
+    pose(b); setHeadCollider(b);
+  }
+  // all cut: it shudders for a second, then falls
+  if (b.phase === 2 && cuts === b.straps.length) { b.phase = 3; b.warnT = 1; b.attack = null; b.ring.visible = false; storyEvent('falling'); }
+  if (b.phase === 3 && b.fallT < 1) {
+    if (b.warnT > 0) { b.warnT = Math.max(0, b.warnT - DT); if (b.warnT === 0) b.fallT = 0.001; }
+    else {
+      b.fallT = Math.min(1, b.fallT + DT / 0.8);
+      if (b.fallT >= 1) {
         if (!G.headless) SFX.boom();
-        emit('shake', 0.6);
-        if (b.hp > 0) storyEvent(`hit${cfg.hp - b.hp}`);
-        else {
-          b.defeated = true;
-          b.bulb.visible = false; b.bulbLight.intensity = 0;
-          L.world.removeCollider(b.bulbCollider, true);
-          b.bulbRemoved = true;
-          openDoor(true);
-          if (!G.headless) SFX.dying();
-          storyEvent('defeated');
-          return;
-        }
+        emit('shake', 1);
+        setHeadCollider(b);
+        // don't bury the player under it
+        const f = cfg.fallen, hx = HOUSING[0] / 2 + 1.3, hz = HOUSING[1] / 2 + 1.3;
+        if (Math.abs(P.pos.x - f[0]) < hx && Math.abs(P.pos.z - f[2]) < hz + 2) { P.pos.z = f[2] + hz + 2.4; P.body.setTranslation({ x: P.pos.x, y: P.pos.y + PLAYER.height / 2, z: P.pos.z }, true); }
+        storyEvent('phase3');
+        b.t = cfg.interval[2];
       }
     }
+    pose(b);
+    if (b.fallT < 1) { aimLens(b); return; }
   }
-  const glow = b.hp / cfg.hp;
-  b.bulbMat.emissiveIntensity = 0.6 + 1.6 * glow; b.bulbLight.intensity = 0.4 + glow;
 
-  // the flash attack
+  // exposure fades if you stay clear
+  b.calm += DT;
+  if (b.exposure > 0 && b.calm > 8) { b.exposure--; b.calm = 0; }
+
+  // the spotlight follows you, lagging behind; once charging, it holds still
+  const speed = [2.6, 3.6, 0][b.phase - 1] || 0;
+  if (!b.attack && speed) {
+    const to = new V3(P.pos.x - b.aim.x, 0, P.pos.z - b.aim.z);
+    const step = Math.min(to.length(), speed * DT);
+    if (step > 0) b.aim.addScaledVector(to.normalize(), step);
+  }
+  if (b.fallT >= 1 && !b.attack) b.aim.set(P.pos.x, 0, P.pos.z); // on the floor it just stares at you
+  aimLens(b);
+
   if (b.attack) {
     b.attack.t -= DT;
     const k = Math.max(0, b.attack.t / cfg.warn);
-    b.ring.scale.setScalar(0.6 + 0.4 * k);
-    b.eyeMat.emissiveIntensity = 0.4 + 4 * (1 - k);
-    b.eyeMat.emissive.setRGB(1, 0.84 * k + 0.12, 0.69 * k + 0.08); // warms to red as it charges
+    b.ring.scale.setScalar(0.55 + 0.45 * k);
+    b.eyeMat.emissiveIntensity = 0.6 + 5 * (1 - k);
+    b.eyeMat.emissive.setRGB(1, 0.84 * k + 0.1, 0.69 * k + 0.06);
+    b.spot.color.setRGB(1, 0.9 * k + 0.1, 0.8 * k + 0.1);
+    b.spot.angle = 0.34 - 0.16 * (1 - k);
+    b.spot.intensity = 7 + 14 * (1 - k);
     if (b.attack.t <= 0) {
+      const from = new V3(); b.tip.getWorldPosition(from);
       const inside = Math.hypot(P.pos.x - b.attack.x, P.pos.z - b.attack.z) < cfg.radius;
-      if (inside && exposed()) { b.zapped = true; b.zaps = (b.zaps || 0) + 1; storyEvent('overexposed'); }
-      else storyEvent('dodged');
+      const hit = inside && lensSees(from);
+      if (hit) {
+        b.exposure++; b.calm = 0;
+        if (b.exposure >= cfg.hits) { b.zapped = true; b.exposure = 0; storyEvent('overexposed'); }
+        else storyEvent('exposed');
+      } else storyEvent('dodged');
       if (!G.headless) SFX.flash();
-      emit('whiteout', inside);
-      b.lamp.intensity = 12;
-      b.eyeMat.emissive.setHex(0xffd6b0);
+      emit('whiteout', hit);
+      b.spot.intensity = 30;
       b.attack = null; b.ring.visible = false;
+      b.eyeMat.emissive.setHex(0xffd6b0);
+      b.spot.color.setHex(0xffe6cc); b.spot.angle = 0.34;
       b.t = cfg.interval[b.phase - 1];
     }
   } else {
-    b.lamp.intensity = Math.max(0, b.lamp.intensity - DT * 30);
-    b.eyeMat.emissiveIntensity = Math.max(0.4, b.eyeMat.emissiveIntensity - DT * 6);
+    b.spot.intensity = Math.max(7, b.spot.intensity - DT * 60);
+    b.eyeMat.emissiveIntensity = Math.max(0.6, b.eyeMat.emissiveIntensity - DT * 6);
     b.t -= DT;
     if (b.t <= 0) {
-      b.attack = { x: P.pos.x, z: P.pos.z, t: cfg.warn };
-      b.ring.position.set(P.pos.x, P.pos.y + 0.03, P.pos.z);
+      b.attack = { x: b.aim.x, z: b.aim.z, t: cfg.warn };
+      b.ring.position.set(b.aim.x, 0.03, b.aim.z);
       b.ring.visible = true;
-      b.lamp.target.position.set(P.pos.x, P.pos.y, P.pos.z);
       if (!G.headless) SFX.charge(cfg.warn);
     }
   }
+}
+
+// Point the lens (and its light) at the aim point.
+function aimLens(b) {
+  b.root.updateMatrixWorld(true);
+  const target = new V3(b.aim.x, 0, b.aim.z);
+  b.lens.rotation.set(0, 0, 0);
+  if (b.fallT <= 0) {
+    // swivel the lens assembly within the head's frame, up to about 45°
+    const local = b.root.worldToLocal(target.clone()).sub(b.lens.position);
+    const yaw = Math.atan2(local.x, local.z), down = Math.atan2(Math.hypot(local.x, local.z), -local.y);
+    b.lens.rotateY(yaw); b.lens.rotateX(-Math.min(0.8, down));
+  }
+  b.lens.updateMatrixWorld(true);
+  const from = new V3(); b.tip.getWorldPosition(from);
+  b.spot.position.copy(from);
+  b.spot.target.position.copy(b.fallT >= 1 ? new V3(P.pos.x, P.pos.y + 1, P.pos.z) : target);
+  b.spot.target.updateMatrixWorld();
+}
+
+// What the HUD shows about the fight.
+export function bossHUD() {
+  const b = G.L && G.L.boss;
+  if (!b) return null;
+  const goal = b.defeated ? 'It has stopped.'
+    : b.phase === 1 ? 'Load both counterweight plates'
+    : b.phase === 2 ? 'Dissolve its straps with negatives'
+    : b.fallT < 1 ? "It's coming down!"
+    : 'Photograph it';
+  return { goal, straps: b.straps.length, cut: b.cuts, exposure: b.exposure, hits: b.cfg.hits, defeated: b.defeated };
 }

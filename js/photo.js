@@ -9,6 +9,7 @@ import { addProp, removeProp, eraseStatic, pushUndo, propMass } from './level.js
 import { P } from './player.js';
 import { SFX } from './audio.js';
 import { storyEvent } from './story.js';
+import { photographBoss } from './boss.js';
 
 const THREE = window.THREE;
 const V3 = THREE.Vector3, Q = THREE.Quaternion;
@@ -91,6 +92,19 @@ export function framedProps() {
 // ---------- taking a photo ----------
 export function takePhoto() {
   const L = G.L;
+  // the last shot of the game: the Curator itself. It needs no film, so it can't be missed.
+  if (photographBoss()) {
+    pushUndo();
+    if (G.roll.length < CAMERA.roll) {
+      const photo = { keepsake: true, neg: false, items: [], half: [0.5, 0.5, 0.5], d0: 1, rot: 0, img: '', mass: 0, label: 'The Curator', born: performance.now() };
+      G.roll.push(photo);
+      if (!G.headless) G.pendingThumb = photo;
+    }
+    G.aimToggle = false;
+    if (!G.headless) { SFX.shutter(); emit('flash'); }
+    emit('rollChanged'); emit('acted');
+    return true;
+  }
   const neg = G.filmMode === 'neg';
   const group = framedProps();
   if (!group.length) { deny('Nothing to photograph there.'); return false; }
@@ -257,6 +271,7 @@ export function solvePlacement(photo) {
 export function develop() {
   const photo = G.roll[G.selected];
   if (!photo || !G.L || G.L.finished) return false;
+  if (photo.keepsake) { deny('Some things should stay in the photograph.'); return false; }
   const pl = solvePlacement(photo);
   if (!pl) { deny('Aim at something to develop onto.'); return false; }
   if (!pl.valid) { deny(photo.neg ? 'Nothing there for the negative to dissolve.' : pl.reason === 'TOO CLOSE' ? "That's where you're standing." : "It won't fit there."); return false; }

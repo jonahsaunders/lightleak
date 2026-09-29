@@ -3,10 +3,10 @@
   "name": "The Enlarger",
   "wide": true,
   "film": {
-    "pos": 8,
-    "neg": 2
+    "pos": 6,
+    "neg": 4
   },
-  "hint": "Its flash can't reach you behind anything solid. Load the plates, open the lamp, and drop something heavy on it.",
+  "hint": "Stay in the shadows it casts. Load its counterweights, cut its straps, then take its picture.",
   "room": {
     "x0": -12,
     "x1": 12,
@@ -20,82 +20,48 @@
   "blocks": [
     {
       "min": [
-        -1.5,
-        0,
-        -13.5
+        -1.475,
+        11,
+        -14.375
       ],
       "max": [
-        1.5,
-        1,
-        -10.5
-      ],
-      "mat": "ledge"
-    },
-    {
-      "min": [
-        -1.5,
-        1,
-        -13.5
-      ],
-      "max": [
-        1.5,
-        3.2,
-        -13.2
-      ],
-      "mat": "glass"
-    },
-    {
-      "min": [
-        -1.5,
-        1,
-        -10.8
-      ],
-      "max": [
-        1.5,
-        3.2,
-        -10.5
-      ],
-      "mat": "glass"
-    },
-    {
-      "min": [
-        -1.5,
-        1,
-        -13.2
-      ],
-      "max": [
-        -1.2,
-        3.2,
-        -10.8
-      ],
-      "mat": "glass"
-    },
-    {
-      "min": [
-        1.2,
-        1,
-        -13.2
-      ],
-      "max": [
-        1.5,
-        3.2,
-        -10.8
-      ],
-      "mat": "glass"
-    },
-    {
-      "min": [
-        -1.5,
-        3.2,
-        -13.5
-      ],
-      "max": [
-        1.5,
-        3.5,
-        -10.5
+        -1.125,
+        14,
+        -14.024999999999999
       ],
       "mat": "emulsion",
-      "tag": "lid"
+      "tag": "strap",
+      "cast": true
+    },
+    {
+      "min": [
+        1.125,
+        11,
+        -14.375
+      ],
+      "max": [
+        1.475,
+        14,
+        -14.024999999999999
+      ],
+      "mat": "emulsion",
+      "tag": "strap",
+      "cast": true
+    },
+    {
+      "min": [
+        -0.175,
+        11,
+        -11.975000000000001
+      ],
+      "max": [
+        0.175,
+        14,
+        -11.625
+      ],
+      "mat": "emulsion",
+      "tag": "strap",
+      "cast": true
     },
     {
       "min": [
@@ -226,6 +192,19 @@
         -21.5
       ],
       "mat": "ledge"
+    },
+    {
+      "min": [
+        -1,
+        0,
+        -3.5
+      ],
+      "max": [
+        1,
+        2.2,
+        -2.5
+      ],
+      "mat": "ledge"
     }
   ],
   "props": [
@@ -261,7 +240,7 @@
       "pos": [
         -8,
         0,
-        -20
+        -22
       ],
       "size": [
         2.4,
@@ -273,19 +252,7 @@
       "pos": [
         8,
         0,
-        -20
-      ],
-      "size": [
-        2.4,
-        2.4
-      ],
-      "need": 5
-    },
-    {
-      "pos": [
-        0,
-        0,
-        -1
+        -22
       ],
       "size": [
         2.4,
@@ -301,7 +268,8 @@
         14,
         -5
       ],
-      "panel": true
+      "panel": true,
+      "intensity": 0.5
     },
     {
       "pos": [
@@ -309,23 +277,26 @@
         14,
         -5
       ],
-      "panel": true
+      "panel": true,
+      "intensity": 0.5
     },
     {
       "pos": [
         -8,
         14,
-        -20
+        -24
       ],
-      "panel": true
+      "panel": true,
+      "intensity": 0.4
     },
     {
       "pos": [
         8,
         14,
-        -20
+        -24
       ],
-      "panel": true
+      "panel": true,
+      "intensity": 0.4
     },
     {
       "pos": [
@@ -375,44 +346,25 @@
     }
   ],
   "boss": {
-    "lens": [
+    "head": [
       0,
-      7.5,
-      -24
+      9.5,
+      -13
     ],
-    "bulb": [
+    "fallen": [
       0,
-      1.75,
-      -12
+      2.02,
+      -13
     ],
-    "bulbRadius": 0.7,
-    "shutter": {
-      "min": [
-        -1.7,
-        3.5,
-        -13.7
-      ],
-      "max": [
-        1.7,
-        3.8,
-        -10.3
-      ],
-      "move": [
-        4,
-        0,
-        0
-      ]
-    },
-    "hp": 3,
-    "hitMass": 10,
     "radius": 2.2,
     "interval": [
-      7,
-      6,
-      5
+      6.5,
+      5,
+      4.5
     ],
-    "warn": 1.5,
-    "grace": 6
+    "warn": 1.4,
+    "grace": 5,
+    "hits": 3
   },
   "spawn": {
     "pos": [
@@ -424,36 +376,41 @@
   },
   "story": {
     "start": [
-      "This is the easel. You're standing on it.",
-      "Hold still. It's only one flash, and then you'll never have to move again."
+      "You came all this way to be printed properly. That's thoughtful.",
+      "Stand in the light, please. It's only one flash, and then you'll never have to move again."
     ],
     "dodged": [
-      "You moved. Everyone moves the first time."
+      "Hold still. Everyone moves the first time."
+    ],
+    "exposed": [
+      "There. That's a start."
     ],
     "overexposed": [
-      "There\u2014 oh. You've come loose again."
+      "Oh. You've come loose again."
     ],
     "plate": [
-      "Those are my counterweights. Put them\u2014 leave them alone."
+      "Those are my counterweights."
     ],
     "phase2": [
-      "That's the shutter. Close the shutter. Close it."
+      "No. Those sleeves keep my straps safe. Put the weights back."
+    ],
+    "cut1": [
+      "Don't touch those!"
+    ],
+    "cut2": [
+      "I'm slipping. Please. I have everyone in here."
+    ],
+    "falling": [
+      "No, no, no\u2014"
     ],
     "phase3": [
-      "Don't. That's the lamp.",
-      "If the lamp goes out I can't see anything. If I can't see it, I can't keep it."
-    ],
-    "hit1": [
-      "Stop dropping things on me!"
-    ],
-    "hit2": [
-      "The filament's going. Please.",
-      "I have everyone in here. Everyone who ever stood still for me."
+      "Don't look at me like that.",
+      "Don't point that at me. I'm the one who takes the pictures."
     ],
     "defeated": [
-      "It's all going white.",
-      "Is it still there? Everything I kept?",
-      "Wren? Is it still\u2014"
+      "Oh.",
+      "Is that me? I look... preserved.",
+      "It's very quiet in here."
     ]
   },
   "solution": [
@@ -478,51 +435,30 @@
       ]
     },
     {
-      "shoot": [
-        -10.5,
-        0.5,
-        -5
-      ]
-    },
-    {
       "walk": [
         -8,
-        -14
+        -15
       ]
     },
     {
       "develop": [
         -8,
         0.08,
-        -20
-      ],
-      "slot": 0
-    },
-    {
-      "walk": [
-        0,
-        -6
-      ]
-    },
-    {
-      "develop": [
-        0,
-        0.08,
-        -1
+        -22
       ],
       "slot": 0
     },
     {
       "walk": [
         8,
-        -14
+        -15
       ]
     },
     {
       "develop": [
         8,
         0.08,
-        -20
+        -22
       ],
       "slot": 0
     },
@@ -541,95 +477,108 @@
       "film": "neg"
     },
     {
+      "shoot": [
+        10.5,
+        0.5,
+        -5
+      ],
+      "film": "neg"
+    },
+    {
+      "shoot": [
+        10.5,
+        0.5,
+        -5
+      ],
+      "film": "neg"
+    },
+    {
+      "walk": [
+        -9,
+        -14
+      ]
+    },
+    {
+      "develop": [
+        -1.475,
+        12.5,
+        -14.2
+      ],
+      "slot": 0
+    },
+    {
+      "walk": [
+        9,
+        -14
+      ]
+    },
+    {
+      "develop": [
+        1.475,
+        12.5,
+        -14.2
+      ],
+      "slot": 0
+    },
+    {
       "walk": [
         0,
-        -6
+        -1.5
       ]
     },
     {
       "develop": [
         0,
-        3.35,
-        -10.5
+        12.5,
+        -11.625
+      ],
+      "slot": 0
+    },
+    {
+      "wait": 3
+    },
+    {
+      "walk": [
+        -2,
+        -2
       ]
     },
     {
       "walk": [
-        -4,
-        0.5
+        -1.5,
+        -5.5
       ]
     },
     {
       "shoot": [
-        -10.5,
-        0.5,
-        -5
+        0,
+        2.02,
+        -9.5
       ],
       "film": "pos"
     },
     {
-      "shoot": [
-        -10.5,
-        0.5,
-        -5
-      ]
-    },
-    {
-      "shoot": [
-        -10.5,
-        0.5,
-        -5
+      "walk": [
+        6,
+        -8
       ]
     },
     {
       "walk": [
-        -2,
-        -3.5
+        7.6,
+        -8
       ]
     },
     {
-      "develop": [
-        0,
-        14,
-        -12
-      ],
-      "slot": 0,
-      "settle": 0.2
-    },
-    {
       "walk": [
-        2,
-        -3.5
+        6.3,
+        -19
       ]
     },
     {
-      "develop": [
-        0,
-        14,
-        -12
-      ],
-      "slot": 0,
-      "settle": 0.2
-    },
-    {
       "walk": [
-        -2,
-        -3.5
-      ]
-    },
-    {
-      "develop": [
-        0,
-        14,
-        -12
-      ],
-      "slot": 0,
-      "settle": 0.2
-    },
-    {
-      "walk": [
-        3,
-        -6
+        6.3,
+        -24.5
       ]
     },
     {
