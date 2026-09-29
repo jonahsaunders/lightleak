@@ -282,6 +282,12 @@
     "start": [
       "Copies of copies come out exactly the same, if you stand exactly where you stood.",
       "I have eleven thousand prints of the same Tuesday afternoon. It was a good afternoon."
+    ],
+    "nudge": [
+      "Each plate wants one crate about the size of the one you already have."
+    ],
+    "nudge2": [
+      "Develop from the same distance you took the picture and it comes out the same size. The ghost will say so."
     ]
   }
 }

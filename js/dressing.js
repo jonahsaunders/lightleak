@@ -156,6 +156,7 @@ export function dust(r, count) {
   pts.userData.noAO = true; pts.userData.ownMaterial = true;
   L.group.add(pts);
   let t = 0;
+  const cam = G.camera.position;
   return dt => {
     t += dt;
     const a = geo.attributes.position.array;
@@ -165,6 +166,12 @@ export function dust(r, count) {
       a[i * 3 + 1] += Math.sin(t * 0.21 + s * 1.7) * 0.001 - 0.0004;
       a[i * 3 + 2] += Math.cos(t * 0.27 + s) * 0.0015;
       if (a[i * 3 + 1] < y0) a[i * 3 + 1] = r.h - 0.4;
+      // a mote right in front of the lens would be drawn as a huge blob: move it somewhere else
+      const dx = a[i * 3] - cam.x, dy = a[i * 3 + 1] - cam.y, dz = a[i * 3 + 2] - cam.z;
+      if (dx * dx + dy * dy + dz * dz < 1.2) {
+        a[i * 3] = r.x0 + Math.random() * (r.x1 - r.x0);
+        a[i * 3 + 2] = r.z0 + Math.random() * (r.z1 - r.z0);
+      }
     }
     geo.attributes.position.needsUpdate = true;
   };

@@ -27,6 +27,29 @@ function handler(dev) {
 
     if (url.pathname === '/api/dev') return send(res, 200, JSON.stringify({ dev }), TYPES['.json']);
 
+    // Playtest sessions (dev only): PUT /api/sessions/<id> saves one, GET /api/sessions lists them all.
+    if (url.pathname === '/api/sessions' && req.method === 'GET') {
+      if (!dev) return send(res, 403, '[]');
+      const dir = path.join(ROOT, 'sessions');
+      const list = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => { try { return JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')); } catch (e) { return null; } }).filter(Boolean) : [];
+      return send(res, 200, JSON.stringify(list), TYPES['.json']);
+    }
+    const ms = url.pathname.match(/^\/api\/sessions\/([a-z0-9-]{1,40})$/);
+    if (ms && req.method === 'PUT') {
+      if (!dev) return send(res, 403, 'Saving sessions needs the dev server (npm run dev).');
+      let body = '';
+      req.on('data', c => { body += c; if (body.length > 8e6) req.destroy(); });
+      req.on('end', () => {
+        try {
+          const dir = path.join(ROOT, 'sessions');
+          fs.mkdirSync(dir, { recursive: true });
+          fs.writeFileSync(path.join(dir, `${ms[1]}.json`), JSON.stringify(JSON.parse(body)) + '\n');
+          send(res, 200, 'saved');
+        } catch (e) { send(res, 400, String(e.message || e)); }
+      });
+      return;
+    }
+
     // Editor saves: PUT /api/levels/<id> with the level JSON. Only in --dev, only from this computer.
     const m = url.pathname.match(/^\/api\/levels\/([a-z0-9-]{1,40})$/);
     if (m && req.method === 'PUT') {

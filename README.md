@@ -65,6 +65,28 @@ The archive is an automated photographic collection run by the Curator: a soft-s
 
 Lines live in each level's `story` field and play once per visit on events: `start`, `photo`, `negative`, `develop`, `dissolve`, `plate`, `door`, `fall`, `undo`, `zone:<name>`, and the boss's `dodged`, `exposed`, `overexposed`, `phase2`, `cut1`, `cut2`, `falling`, `phase3` and `defeated`. Cards are `decor` entries with `"kind": "card"`, a `title` and `text`.
 
+## How it feels
+
+- **Clean sizes.** A developed size snaps to a clean ratio (same size, ½, 2×, 3×…) when you're within about 7% of one, and the ghost says so. Puzzles are about the idea, not about standing on the exact spot.
+- **The ghost tells you the outcome.** Before you develop, it shows the size, the weight, the snap, whether it will fall, and what the plate it lands on will read ("plate 0.6 t ✓").
+- **A camera in your hands.** The shutter clicks, the film lever advances, a print slides out. The photo you're holding appears in your other hand. An amber lamp shows when negative film is loaded.
+- **Things materialise and dissolve.** Developed objects grow out of a spray of emulsion; dissolved things redden, lift and fizz away.
+- **Sound** is layered on separate volume buses: footsteps that change with the surface, mechanical camera foley, room tone and safelight hum, and a quiet generative score that turns tense in the last room.
+- **When you're stuck,** the Curator notices after about 70 seconds without progress, or after two restarts, and drops an in-character hint, then a plainer one later. The level hint fades once you've had time to read it and comes back with the nudge.
+- **Between rooms,** the room you just solved develops into a print, taken from its doorway.
+
+## Playtesting
+
+The most useful thing you can do with this game is watch people play it.
+
+- Every attempt at a level is recorded automatically: the full input stream (it replays exactly), a position trail, and every shot, development, undo, fall and restart. With `npm run dev` they're saved as files in `sessions/`; otherwise in the browser.
+- **Playtest review** on the title screen shows each room's attempts, finish rate, median time, undos, falls, restarts and how often people got stuck (45 seconds or more without progress), plus a top-down heatmap of where people went and what they did. **Watch** replays any attempt.
+- Testers can **Export** their sessions and send you the file; **Import** adds them to your review.
+
+## Settings and access
+
+The title screen's settings cover mouse sensitivity, field of view (display only; the simulation's framing stays fixed so replays stay exact), invert look, five volume levels, reduced camera flashes, screen shake and subtitle size. Gamepads work: left stick move, right stick look, LT raise the camera, RT shoot or develop, bumpers change photo or frame size, A jump, B undo, X switch film, D-pad turn the photo, Start pause.
+
 ## How it looks
 
 - **Materials** are painted in code as height, colour and roughness; normal maps come from the height. Wall and floor textures span 4 m with 1 m panels, tile seamlessly, and are mapped in world space, so the grid runs unbroken across every surface and still works as a ruler.
@@ -102,6 +124,10 @@ Each level carries a `solution`, either scripted steps (`walk`, `shoot`, `develo
 | `js/player.js` | The character controller |
 | `js/hud.js` | Viewfinder, ghost, photo roll, readouts |
 | `js/driver.js` | Solution playback and the test runner |
+| `js/sessions.js`, `js/review.js` | Playtest recording and the review screen |
+| `js/viewmodel.js`, `js/fx.js` | The camera in your hands, and develop/dissolve effects |
+| `js/settings.js` | Player settings |
+| `js/story.js`, `js/boss.js` | The Curator's lines and nudges, and the final fight |
 | `js/editor.js` | The level editor |
 | `js/materials.js`, `js/audio.js` | Procedural textures and synthesised sound |
 | `server.js`, `desktop/main.js` | Local server (with the editor's save endpoint) and the Electron wrapper |

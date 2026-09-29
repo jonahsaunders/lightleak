@@ -278,6 +278,12 @@
     ],
     "door": [
       "That concludes the first roll. You have a very steady hand, for a print."
+    ],
+    "nudge": [
+      "You can't jump all of that. You could jump part of it."
+    ],
+    "nudge2": [
+      "Develop the plank on the floor right at the edge, pointing across the gap. Half on, half off."
     ]
   }
 }

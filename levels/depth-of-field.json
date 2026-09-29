@@ -162,6 +162,12 @@
     ],
     "develop": [
       "There. Much larger. Nothing was harmed."
+    ],
+    "nudge": [
+      "The block only looks small because you're far away from it."
+    ],
+    "nudge2": [
+      "Take the picture up close. Develop it far away. The farther you put it, the bigger it comes out."
     ]
   }
 }

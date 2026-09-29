@@ -253,6 +253,12 @@
     "start": [
       "Now, group portraits. Widen the frame and everything inside it comes along, arranged as you saw it.",
       "The staff used to take group photographs. The last one came out beautifully. Nobody moved at all."
+    ],
+    "nudge": [
+      "One photo, two plates. A frame can hold more than one thing."
+    ],
+    "nudge2": [
+      "Raise the camera and roll the wheel up, or press G, until both crates light up. Then develop them between the plates."
     ]
   }
 }

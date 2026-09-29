@@ -194,6 +194,12 @@
     ],
     "door": [
       "The door opens when the plate is satisfied. Everything here is easy to satisfy if you give it what it wants."
+    ],
+    "nudge": [
+      "Hold the right mouse button to raise the camera. Point it at the crate, not the glass."
+    ],
+    "nudge2": [
+      "Then press 1 to hold the photo up, look at the plate, and click. It really is that simple. Most things are."
     ]
   }
 }

@@ -134,7 +134,7 @@ export async function runTests(tick, ids = null) {
   // Plays one script to the end; resolves to { finished, ticks, error }.
   async function play(def, steps) {
     loadLevel(def);
-    G.camera.fov = 75; G.camera.updateProjectionMatrix();
+    G.camera.fov = 75; G.camera.updateProjectionMatrix(); G.logicFov = 75;
     G.tick = 0;
     const d = new Driver(def, steps);
     let ticks = 0;

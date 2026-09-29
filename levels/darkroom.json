@@ -322,6 +322,12 @@
     "door": [
       "Come to the enlarging room.",
       "I'll make a proper print of you. Fixed, this time, so you can't come loose again."
+    ],
+    "nudge": [
+      "There is something behind the emulsion near where you came in."
+    ],
+    "nudge2": [
+      "Open it with a negative. Photograph everything inside at once, and build yourself a way up."
     ]
   }
 }

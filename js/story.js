@@ -11,16 +11,21 @@ import { P } from './player.js';
 
 const $ = id => document.getElementById(id);
 const queue = [];
-let current = null, shown = 0, hold = 0, fired = new Set(), wait = 0;
+let current = null, shown = 0, hold = 0, fired = new Set(), wait = 0, idle = 0, hintT = 0;
+// events that count as getting somewhere; anything else leaves the stuck timer running
+const PROGRESS = new Set(['photo', 'negative', 'develop', 'dissolve', 'plate', 'door', 'phase2', 'phase3']);
 
 export function storyReset() {
-  queue.length = 0; current = null; fired = new Set();
+  queue.length = 0; current = null; fired = new Set(); idle = 0; hintT = 0;
+  document.getElementById('fi-hint')?.classList.remove('quiet');
   wait = 1.6; // let the title card go first
   $('subtitle').hidden = true;
 }
 
 export function storyEvent(name) {
   if (G.headless || !G.L) return;
+  if (PROGRESS.has(name) || /^cut/.test(name)) idle = 0;
+  if (name.startsWith('nudge')) document.getElementById('fi-hint')?.classList.remove('quiet');
   const lines = G.L.def.story?.[name];
   if (!lines || fired.has(name)) return;
   fired.add(name);
@@ -33,6 +38,11 @@ export function storyBusy() { return !!current || queue.length > 0; }
 // Per rendered frame.
 export function storyFrame(dt) {
   if (!G.L) return;
+  // stuck? the Curator notices, in its own way; the corner hint comes back too
+  idle += dt; hintT += dt;
+  if (hintT > 16) document.getElementById('fi-hint')?.classList.add('quiet');
+  if (idle > 70 && !G.L.finished) storyEvent('nudge');
+  if (idle > 150 && !G.L.finished) storyEvent('nudge2');
   for (const z of G.L.def.story?.zones || []) {
     const [a, b] = [z.min, z.max];
     if (P.pos.x > a[0] && P.pos.x < b[0] && P.pos.y > a[1] - 0.5 && P.pos.y < b[1] && P.pos.z > a[2] && P.pos.z < b[2]) storyEvent(`zone:${z.name}`);

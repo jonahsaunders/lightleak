@@ -16,6 +16,7 @@ import { P } from './player.js';
 import { openDoor } from './level.js';
 import { SFX } from './audio.js';
 import { storyEvent } from './story.js';
+import { SET } from './settings.js';
 
 const THREE = window.THREE;
 const V3 = THREE.Vector3, Q = THREE.Quaternion;
@@ -275,7 +276,7 @@ export function stepBoss() {
       } else storyEvent('dodged');
       if (!G.headless) SFX.flash();
       emit('whiteout', hit);
-      b.spot.intensity = 30;
+      b.spot.intensity = SET.flashing === 'reduced' ? 12 : 30;
       b.attack = null; b.ring.visible = false;
       b.eyeMat.emissive.setHex(0xffd6b0);
       b.spot.color.setHex(0xffe6cc); b.spot.angle = 0.34;

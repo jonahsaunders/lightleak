@@ -468,6 +468,29 @@ export function cardTexture(title) {
   return texture(c);
 }
 
+// Pebbled black leatherette for the camera body.
+let leather = null;
+export function leatherMaterial() {
+  if (leather) return leather;
+  const size = 256, rand = rng(61), h = new Float32Array(size * size), n = fbm(size, 2, 62, 32);
+  for (let i = 0; i < 2600; i++) {
+    const cx = rand() * size, cy = rand() * size, r = 2 + rand() * 3;
+    for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) {
+      const d = Math.hypot(x - cx, y - cy); if (d < r) { const k = ((y + size) % size) * size + ((x + size) % size); h[k] = Math.max(h[k], 1 - d / r); }
+    }
+  }
+  for (let i = 0; i < h.length; i++) h[i] = h[i] * 0.8 + n[i] * 0.2;
+  const rough = new Float32Array(size * size);
+  for (let i = 0; i < rough.length; i++) rough[i] = 0.72 + (1 - h[i]) * 0.25;
+  leather = new THREE.MeshStandardMaterial({
+    color: 0x0b0a09, roughness: 1, metalness: 0, envMapIntensity: 0.15,
+    normalMap: texture(normalCanvas(h, size, 2.5), { repeat: true, srgb: false }),
+    roughnessMap: texture(greyCanvas(size, rough), { repeat: true, srgb: false }),
+  });
+  leather.normalMap.repeat.set(3, 3); leather.roughnessMap.repeat.set(3, 3);
+  return leather;
+}
+
 // Soft round sprite for dust motes and light shafts.
 export function softDot(size = 64) {
   return texture(paint(size, size, (g, w) => {

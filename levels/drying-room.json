@@ -145,6 +145,9 @@
       "You're a print, item sixteen-oh-four-twelve. Prints hang until they're dry, and then they're filed.",
       "But since you're up, you may as well be useful. The archive camera needs someone to hold it.",
       "Through the door, please. Mind the drips."
+    ],
+    "nudge": [
+      "The door is the tall thing with the red light over it. I'm told it's intuitive."
     ]
   },
   "solution": [

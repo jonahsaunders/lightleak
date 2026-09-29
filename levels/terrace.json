@@ -247,6 +247,12 @@
     ],
     "door": [
       "Nearly finished. There's some film ahead that hasn't set yet. Leave it alone, please."
+    ],
+    "nudge": [
+      "One stair gets you halfway. You have film for two."
+    ],
+    "nudge2": [
+      "Take two photos of the model. Build the second stair on top of the first ledge."
     ]
   }
 }

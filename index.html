@@ -30,13 +30,17 @@
   #frameinfo { position: absolute; left: 20px; top: 16px; max-width: min(460px, 70vw); }
   #frameinfo .no { font: 700 11px var(--mono); letter-spacing: .2em; color: var(--safe-2); }
   #frameinfo .name { font: 700 22px var(--ui); letter-spacing: .02em; }
-  #frameinfo .hint { color: var(--dim); margin-top: 4px; text-shadow: 0 1px 2px #000; }
+  #frameinfo .hint { color: var(--dim); margin-top: 4px; text-shadow: 0 1px 2px #000; transition: opacity 1.2s; }
+  #frameinfo .hint.quiet { opacity: 0; }
   #keys { position: absolute; right: 20px; bottom: 18px; text-align: right; color: var(--dim); font-size: 12px; line-height: 1.9; text-shadow: 0 1px 2px #000; }
 
   #crosshair { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 1px #0008; }
   #prompt { position: absolute; left: 50%; top: calc(50% + 22px); transform: translateX(-50%); font: 600 13px var(--mono); white-space: nowrap; text-shadow: 0 1px 2px #000; }
   #prompt .bad { color: var(--bad); }
   #prompt .ok { color: var(--ok); }
+  #prompt { text-align: center; }
+  #prompt .sub { font-size: 11px; color: #efe6d2cc; margin-top: 2px; }
+  #prompt .snap { color: #0b0807; background: var(--ok); padding: 0 5px; border-radius: 2px; }
 
   /* the viewfinder is 72% of the screen's height and 4:3; photo.js assumes the same */
   #vf { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); height: 72vh; width: 96vh; max-width: 96vw; }
@@ -99,6 +103,13 @@
   #flash.go { animation: flash .35s ease-out; }
   @keyframes flash { from { opacity: .85; } to { opacity: 0; } }
   #fade { position: absolute; inset: 0; background: var(--ink); opacity: 0; transition: opacity .5s; }
+  /* between rooms: the room you just left, developing as a print */
+  #print { position: absolute; left: 50%; top: 46%; width: min(420px, 60vw); transform: translate(-50%, -50%) rotate(-2deg); background: #efe6d2; padding: 14px 14px 0; box-shadow: 0 20px 60px #000c; z-index: 2; opacity: 0; }
+  #print img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; background: #fff; }
+  #print .cap { font: 700 13px var(--mono); letter-spacing: .14em; color: #3b332b; text-align: center; padding: 12px 0 14px; }
+  #print.go { animation: printIn 2.3s ease-out both; }
+  #print.go img { animation: develop 1.9s ease-out .25s both; }
+  @keyframes printIn { 0% { opacity: 0; transform: translate(-50%, -40%) rotate(4deg); } 18% { opacity: 1; transform: translate(-50%, -50%) rotate(-2deg); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -52%) rotate(-2deg); } }
   #fade.on { opacity: 1; }
 
   #titlecard { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); text-align: center; opacity: 0; transition: opacity .6s; }
@@ -129,9 +140,22 @@
   #controls { margin-top: 22px; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; color: var(--dim); font-size: 14px; }
   #controls dt { text-align: right; }
   #controls dd { margin: 0; }
+  #settings { margin-top: 18px; color: var(--dim); font-size: 14px; }
+  #settings summary { cursor: pointer; font: 700 12px var(--mono); letter-spacing: .16em; color: var(--paper); }
+  .set-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-top: 12px; }
+  .set-h { font: 700 11px var(--mono); letter-spacing: .16em; color: var(--dim); margin-bottom: 6px; }
+  .set-grid label { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; margin: 5px 0; color: var(--paper); font-size: 13px; }
+  .set-grid label input[type=range] { grid-column: 1 / -1; width: 100%; }
+  .set-grid output { font: 12px var(--mono); color: var(--dim); grid-row: 1; grid-column: 2; }
+  .set-note { font-size: 12px; color: var(--dim); margin-top: 6px; line-height: 1.5; }
+  .set-gfx { display: inline-flex; gap: 8px; align-items: center; margin-top: 10px; color: var(--paper); }
   #settings input { accent-color: var(--safe); }
+  body.subs-large #subtitle .text { font-size: 25px; }
+  body.calm-flash #flash.go, body.calm-flash #negflash.go { animation: none; }
+  body.calm-flash #whiteout { background: #5a1208; }
+  body.calm-flash #whiteout.go, body.calm-flash #whiteout.go.hit { animation: calmflash .6s ease-out; }
+  @keyframes calmflash { from { opacity: .45; } to { opacity: 0; } }
   #settings select { background: var(--ink-2); color: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 3px 6px; font: inherit; }
-  #settings { margin-top: 16px; color: var(--dim); font-size: 14px; display: flex; gap: 10px; align-items: center; }
 
   /* the final fight: name, current goal, straps left, and your exposure */
   #bossbar { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); width: min(460px, calc(100vw - 48px)); text-align: center; }
@@ -167,6 +191,25 @@
   #ending .credits { margin-top: 28px; font: 13px/1.9 var(--mono); color: #6b5f52; }
   #ending .btn { margin-top: 24px; }
 
+  /* playtest review */
+  #review { position: fixed; inset: 0; background: #0d0a09; overflow: auto; z-index: 5; }
+  #review .wrap { max-width: 1180px; margin: 0 auto; padding: 22px 20px 40px; }
+  #review h2 { font: 800 26px var(--ui); margin: 0; }
+  #review .top { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  #review .top .grow { flex: 1; color: var(--dim); }
+  #review .btn { font-size: 12px; padding: 7px 12px; }
+  #review .cols { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; }
+  @media (max-width: 900px) { #review .cols { grid-template-columns: 1fr; } }
+  #rv-table { width: 100%; border-collapse: collapse; font: 13px var(--mono); }
+  #rv-table th { text-align: left; color: var(--dim); font-weight: 600; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+  #rv-table td { padding: 5px 6px; border-bottom: 1px solid #2a2320; cursor: pointer; }
+  #rv-table tr:hover td { background: #1d1916; }
+  #rv-table tr.sel td { background: #3a130d; }
+  #rv-table td.warn { color: #e6c44a; }
+  #rv-map { width: 100%; max-width: 560px; aspect-ratio: 1; background: #0b0908; border: 1px solid var(--line); display: block; }
+  #rv-legend { color: var(--dim); font: 12px var(--mono); margin: 6px 0 12px; line-height: 1.7; }
+  .rv-row { display: grid; grid-template-columns: 70px 1fr 50px 2fr auto; gap: 8px; align-items: center; font: 12px var(--mono); padding: 5px 0; border-bottom: 1px solid #2a2320; }
+  .rv-row .ok { color: var(--ok); } .rv-row .bad { color: var(--bad); }
   #test-report { position: fixed; inset: 0; margin: 0; padding: 24px; font: 14px/1.6 var(--mono); background: var(--ink); white-space: pre-wrap; overflow: auto; }
 
   /* editor */
@@ -220,6 +263,7 @@
   <div id="flash"></div>
   <div id="whiteout"></div>
   <div id="fade"></div>
+  <div id="print" hidden><img id="print-img" alt=""><div class="cap" id="print-cap"></div></div>
 </div>
 
 <div id="editor" hidden>
@@ -241,6 +285,7 @@
       <button class="btn" id="play">Start</button>
       <button class="btn ghost" id="restart" hidden>Restart frame</button>
       <button class="btn ghost" id="to-editor" hidden>Edit this level</button>
+      <button class="btn ghost" id="to-review">Playtest review</button>
     </div>
     <div id="chapters"></div>
     <dl id="controls">
@@ -253,8 +298,10 @@
       <dt><kbd>Z</kbd> <kbd>X</kbd> <kbd>R</kbd></dt><dd>Undo, throw a photo away, restart the frame</dd>
       <dt><kbd>Esc</kbd> <kbd>F2</kbd></dt><dd>Pause, level editor</dd>
     </dl>
-    <div id="settings"><label for="sens">Mouse sensitivity</label><input id="sens" type="range" min="0.3" max="2.5" step="0.05" value="1">
-      <label for="gfx" style="margin-left:18px">Graphics</label><select id="gfx"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+    <details id="settings"><summary>Settings</summary>
+      <div class="set-grid" id="settings-panel"></div>
+      <label class="set-gfx">Graphics <select id="gfx"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
+    </details>
   </div>
 </div>
 
@@ -265,6 +312,27 @@
     <p>Somewhere behind you, fifteen prints of Wren Adeyemi hang in a dark room, dry and quiet. You were the sixteenth. Now you're someone else.</p>
     <div class="credits">A game by Jonah Saunders<br>Built with three.js and Rapier<br>Every texture drawn and every sound synthesised in code<br><br>Thanks for playing.</div>
     <button class="btn" id="ending-close">Back to the menu</button>
+  </div>
+</div>
+
+<div id="review" hidden>
+  <div class="wrap">
+    <div class="top">
+      <h2>Playtest review</h2><span class="grow" id="rv-total"></span>
+      <button class="btn ghost" id="rv-export">Export</button>
+      <label class="btn ghost" for="rv-import" style="cursor:pointer">Import</label><input type="file" id="rv-import" accept=".json" hidden>
+      <button class="btn ghost" id="rv-clear">Forget local</button>
+      <button class="btn" id="rv-close">Close</button>
+    </div>
+    <div class="cols">
+      <div><table id="rv-table"></table></div>
+      <div>
+        <h3 id="rv-title" style="margin:0 0 8px;font:700 16px var(--ui)"></h3>
+        <canvas id="rv-map" width="560" height="560"></canvas>
+        <div id="rv-legend">Heat: where people spent time · white trails finished, red didn't<br>● photo &nbsp;<span style="color:#d98a4f">●</span> negative &nbsp;<span style="color:#8fc27a">■</span> developed &nbsp;<span style="color:#f06a4f">■</span> dissolved &nbsp;<span style="color:#e6c44a">↺</span> undo &nbsp;<span style="color:#e0574a">✕</span> fall/flash &nbsp;<span style="color:#e6c44a">◯</span> stuck (45 s+ without progress)</div>
+        <div id="rv-sessions"></div>
+      </div>
+    </div>
   </div>
 </div>
 

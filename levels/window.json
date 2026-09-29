@@ -329,6 +329,12 @@
     ],
     "dissolve": [
       "Now look what you've let in."
+    ],
+    "nudge": [
+      "Only something small and heavy fits in that cubby. Steel is heavy. Where would one keep steel?"
+    ],
+    "nudge2": [
+      "Behind the emulsion on the east wall. Dissolve it and see what's there."
     ]
   }
 }

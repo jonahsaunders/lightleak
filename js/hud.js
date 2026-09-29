@@ -1,7 +1,7 @@
 // Everything drawn in HTML over the 3D view.
 import { G } from './state.js';
 import { CAMERA, NAMES } from './config.js';
-import { framedProps, solvePlacement, frameRect, aimedProp } from './photo.js';
+import { framedProps, solvePlacement, frameRect, aimedProp, ratioLabel } from './photo.js';
 import { grainDataURL } from './materials.js';
 import { SFX } from './audio.js';
 import { bossHUD } from './boss.js';
@@ -221,13 +221,16 @@ export function updateAim() {
   if (photo.neg) {
     setLit(pl.erase.filter(r => r.body), ERASE);
     for (const r of pl.erase) if (!r.body) r.mesh.material.emissive.setHex(0x6a1a0c);
-    prompt.innerHTML = pl.valid ? `<span class="ok">CLICK</span> dissolve ${pl.erase.length} thing${pl.erase.length > 1 ? 's' : ''}` : `<span class="bad">${pl.reason}</span>`;
+    prompt.innerHTML = pl.valid ? `<div><span class="ok">CLICK</span> dissolve ${pl.erase.length} thing${pl.erase.length > 1 ? 's' : ''}</div>` : `<div><span class="bad">${pl.reason}</span></div>`;
     return;
   }
   setLit([], NONE);
   const dims = `${fmtM(pl.size.x)} × ${fmtM(pl.size.y)} × ${fmtM(pl.size.z)} m · ${fmtT(pl.mass)} t`;
+  const scale = pl.nice ? `<span class="snap">${ratioLabel(pl.nice)}</span>` : `×${pl.k.toFixed(2)}`;
   const fall = !isFinite(pl.drop) ? ' · <span class="bad">FALLS AWAY</span>' : pl.drop > 1.5 ? ` · drops ${pl.drop.toFixed(1)} m` : '';
-  prompt.innerHTML = pl.valid ? `<span class="ok">CLICK</span> develop · ${dims}${fall}` : `<span class="bad">${pl.reason}</span> · ${dims}`;
+  const plate = pl.plate ? ` · plate <span class="${pl.plate.ok ? 'ok' : 'bad'}">${fmtT(pl.plate.load)} t ${pl.plate.ok ? '✓' : pl.plate.max != null && pl.plate.load > pl.plate.max ? '(too heavy)' : `(needs ${fmtT(pl.plate.need)})`}</span>` : '';
+  const head = pl.valid ? '<span class="ok">CLICK</span> develop' : `<span class="bad">${pl.reason}</span>`;
+  prompt.innerHTML = `<div>${head} · ${scale}</div><div class="sub">${dims}${plate}${fall}</div>`;
 }
 
 // An index card within reach and in plain view shows its text.

@@ -315,7 +315,7 @@ function addPlate(def) {
   sprite.scale.set(1.6, 0.8, 1);
   sprite.position.set(x, y + (def.label ?? 2.5), z);
   L.group.add(mesh, sprite); L.rayMeshes.push(mesh);
-  const p = { need: def.need, max: def.max ?? null, load: 0, shown: -1, on: false, collider, mesh, mat, canvas, tex, baseY: mesh.position.y };
+  const p = { need: def.need, max: def.max ?? null, load: 0, shown: -1, on: false, collider, mesh, mat, canvas, tex, baseY: mesh.position.y, lo: min, hi: max };
   L.colliders.set(collider.handle, { kind: 'plate', ref: p });
   L.plates.push(p);
   drawPlate(p);

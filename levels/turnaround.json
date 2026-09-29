@@ -243,6 +243,12 @@
     "start": [
       "If it doesn't fit, turn it. People are the same.",
       "You keep turning them, gently, until they fit."
+    ],
+    "nudge": [
+      "The crates sit side by side. The plates sit one behind the other. Something has to turn."
+    ],
+    "nudge2": [
+      "While you're holding the photo, press Q or E to turn it."
     ]
   }
 }

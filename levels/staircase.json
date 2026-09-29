@@ -232,6 +232,12 @@
     "start": [
       "Someone built this model for a display about the building.",
       "I kept the model. The building I'm less sure about."
+    ],
+    "nudge": [
+      "That model is a staircase. The ledge would like a staircase."
+    ],
+    "nudge2": [
+      "Photograph all three steps at once, then develop them against the ledge from far enough back that they come out big."
     ]
   }
 }

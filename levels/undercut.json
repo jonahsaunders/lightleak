@@ -206,6 +206,12 @@
     ],
     "dissolve": [
       "Stop that."
+    ],
+    "nudge": [
+      "That crate would fall if the pillar weren't there. Not that I'm suggesting anything."
+    ],
+    "nudge2": [
+      "Take the negative from far away so it comes out small, then develop it low on the pillar, well clear of the crate."
     ]
   }
 }

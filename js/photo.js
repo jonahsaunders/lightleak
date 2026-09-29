@@ -10,6 +10,8 @@ import { P } from './player.js';
 import { SFX } from './audio.js';
 import { storyEvent } from './story.js';
 import { photographBoss } from './boss.js';
+import { vmShot, vmDevelop } from './viewmodel.js';
+import { grow, fadeOut } from './fx.js';
 
 const THREE = window.THREE;
 const V3 = THREE.Vector3, Q = THREE.Quaternion;
@@ -65,7 +67,7 @@ function visible(p) {
 // The viewfinder is 72% of the screen's height and 4:3, which is what the HUD draws.
 export function frameRect() {
   const f = CAMERA.frames[G.frameIdx];
-  const t = Math.tan(THREE.MathUtils.degToRad(G.camera.fov) / 2);
+  const t = Math.tan(THREE.MathUtils.degToRad(G.logicFov || G.camera.fov) / 2); // the simulation's fixed FOV, not the display's
   return { tx: 0.96 * f * t, ty: 0.72 * f * t, frac: f };
 }
 
@@ -101,7 +103,7 @@ export function takePhoto() {
       if (!G.headless) G.pendingThumb = photo;
     }
     G.aimToggle = false;
-    if (!G.headless) { SFX.shutter(); emit('flash'); }
+    if (!G.headless) { SFX.shutter(); emit('flash'); vmShot(); }
     emit('rollChanged'); emit('acted');
     return true;
   }
@@ -139,7 +141,7 @@ export function takePhoto() {
   };
   G.roll.push(photo);
   G.aimToggle = false;
-  if (!G.headless) { G.pendingThumb = photo; SFX.shutter(); emit('flash'); }
+  if (!G.headless) { G.pendingThumb = photo; SFX.shutter(); SFX.lever(); SFX.eject(); emit('flash'); vmShot(); }
   emit('rollChanged');
   emit('acted');
   storyEvent(neg ? 'negative' : 'photo');
@@ -161,6 +163,21 @@ function clampK(k, photo) {
   const maxExtent = 2 * Math.max(...photo.half);
   const minDim = Math.min(...photo.items.map(it => Math.min(...it.size)));
   return THREE.MathUtils.clamp(k, CAMERA.minDim / minDim, CAMERA.maxDim / maxExtent);
+}
+
+// Sizes snap to clean ratios when you're close to one, so "develop it the same size" or "twice as
+// big" doesn't depend on standing on exactly the right spot. The ghost says when it has snapped.
+const NICE = [0.25, 1 / 3, 0.5, 2 / 3, 0.75, 1, 1.25, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
+function snapK(k, photo) {
+  let best = null;
+  for (const n of NICE) if (Math.abs(k / n - 1) < 0.07 && (!best || Math.abs(k / n - 1) < Math.abs(k / best - 1))) best = n;
+  return best ? { k: clampK(best, photo), nice: best } : { k, nice: null };
+}
+export function ratioLabel(n) {
+  if (n == null) return '';
+  if (n === 1) return 'same size';
+  const frac = { 0.25: '¼', [1 / 3]: '⅓', 0.5: '½', [2 / 3]: '⅔', 0.75: '¾' }[n];
+  return frac ? `${frac} size` : `${n}× size`;
 }
 
 function groupQuat(photo) {
@@ -205,7 +222,8 @@ export function solvePlacement(photo) {
 
   if (photo.neg) {
     center.copy(h.point);
-    k = clampK(h.distance / photo.d0, photo);
+    const sn = snapK(clampK(h.distance / photo.d0, photo), photo);
+    k = sn.k;
     const ps = poses(photo, center, qG, k);
     const erase = new Set();
     for (const pose of ps) {
@@ -216,7 +234,7 @@ export function solvePlacement(photo) {
       }, G.R.QueryFilterFlags.EXCLUDE_SENSORS);
     }
     const size = new V3().fromArray(photo.half).multiplyScalar(2 * k);
-    return { neg: true, center, k, poses: ps, erase: [...erase], valid: erase.size > 0, reason: erase.size ? '' : 'NOTHING TO DISSOLVE', size };
+    return { neg: true, center, k, nice: sn.nice, poses: ps, erase: [...erase], valid: erase.size > 0, reason: erase.size ? '' : 'NOTHING TO DISSOLVE', size };
   }
 
   const n = h.face.normal.clone().transformDirection(h.object.matrixWorld);
@@ -227,6 +245,8 @@ export function solvePlacement(photo) {
     center.copy(h.point).addScaledVector(n, ext + 0.01);
     k = clampK(center.distanceTo(e) / photo.d0, photo);
   }
+  const sn = snapK(k, photo);
+  k = sn.k;
   let ext = -Infinity;
   for (const c of corners) ext = Math.max(ext, -c.dot(n) * k);
   center.copy(h.point).addScaledVector(n, ext + 0.01);
@@ -265,7 +285,18 @@ export function solvePlacement(photo) {
   }
   const mass = photo.items.reduce((m, it) => m + propMass(it.type, it.size.map(v => v * k)), 0);
   const size = new V3().fromArray(photo.half).multiplyScalar(2 * k);
-  return { neg: false, center, k, poses: ps, valid, reason, drop, mass, size };
+  // which plate (if any) it will come to rest on, and what that plate will then read
+  let plate = null;
+  if (isFinite(drop)) {
+    const land = center.clone(); land.y -= drop;
+    for (const p of G.L.plates) {
+      if (land.x > p.lo[0] && land.x < p.hi[0] && land.z > p.lo[2] && land.z < p.hi[2] && land.y - size.y / 2 < p.hi[1] + 0.3) {
+        const load = p.load + mass;
+        plate = { load, need: p.need, max: p.max, ok: load >= p.need - 1e-6 && (p.max == null || load <= p.max + 1e-6) };
+      }
+    }
+  }
+  return { neg: false, center, k, nice: sn.nice, poses: ps, valid, reason, drop, mass, size, plate };
 }
 
 export function develop() {
@@ -277,16 +308,18 @@ export function develop() {
   if (!pl.valid) { deny(photo.neg ? 'Nothing there for the negative to dissolve.' : pl.reason === 'TOO CLOSE' ? "That's where you're standing." : "It won't fit there."); return false; }
   pushUndo();
   if (photo.neg) {
-    for (const r of pl.erase) { if (r.body) removeProp(r); else eraseStatic(r); }
+    for (const r of pl.erase) { fadeOut(r.mesh); if (r.body) removeProp(r); else eraseStatic(r); }
     if (!G.headless) SFX.erase();
   } else {
     for (const pose of pl.poses) {
       const p = addProp(pose.type, pose.size, pose.pos.toArray(), pose.q.toArray());
       p.flash = 1;
+      grow(p);
     }
     if (!G.headless) SFX.develop();
   }
   storyEvent(photo.neg ? 'dissolve' : 'develop');
+  if (!G.headless) vmDevelop();
   G.roll.splice(G.selected, 1);
   G.selected = -1;
   emit('rollChanged');

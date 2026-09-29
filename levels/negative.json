@@ -124,6 +124,12 @@
     ],
     "dissolve": [
       "That was part of the collection."
+    ],
+    "nudge": [
+      "Press T for the negative film. I would rather you didn't."
+    ],
+    "nudge2": [
+      "Photograph anything on negative film, then develop it onto the red emulsion."
     ]
   }
 }
