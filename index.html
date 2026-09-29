@@ -48,6 +48,7 @@
   #vf .c.br { right: 0; bottom: 0; border-left: 0; border-top: 0; }
   #vf .rec { position: absolute; left: 14px; top: 12px; font: 700 12px var(--mono); color: var(--safe-2); }
   #vf .rec::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--safe); margin-right: 6px; }
+  #vf .size { position: absolute; right: 14px; top: 12px; font: 700 12px var(--mono); color: var(--paper); text-shadow: 0 1px 2px #000; }
   #vf.negative .rec { color: var(--paper); }
   #vf.negative .c { border-color: var(--safe-2); }
   #vf .read { position: absolute; left: 14px; bottom: 12px; right: 14px; font: 600 12px var(--mono); display: flex; justify-content: space-between; text-shadow: 0 1px 2px #000; }
@@ -146,6 +147,7 @@
   <div id="vf" hidden>
     <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
     <div class="rec" id="vf-mode">FILM</div>
+    <div class="size" id="vf-size" hidden></div>
     <div class="focus"></div>
     <div id="vf-frame" hidden></div>
     <div class="read"><span id="vf-subject">No subject</span><span id="vf-dist"></span></div>
@@ -185,7 +187,7 @@
     <dl id="controls">
       <dt><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> <kbd>Space</kbd></dt><dd>Move, jump</dd>
       <dt>Hold <kbd>RMB</kbd> or <kbd>F</kbd></dt><dd>Raise the camera; click to take a photo</dd>
-      <dt><kbd>Wheel</kbd> while aiming</dt><dd>Widen the frame to take in several things (from chapter 2)</dd>
+      <dt><kbd>Wheel</kbd> or <kbd>G</kbd> while aiming</dt><dd>Widen the frame to take in several things (from chapter 2)</dd>
       <dt><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> / <kbd>Wheel</kbd></dt><dd>Hold up a photo; click to develop it</dd>
       <dt><kbd>Q</kbd><kbd>E</kbd></dt><dd>Turn the photo you're holding</dd>
       <dt><kbd>T</kbd></dt><dd>Switch between film and negative (chapter 3)</dd>

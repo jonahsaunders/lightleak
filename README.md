@@ -24,7 +24,7 @@ Run `npm install` once first. If npm holds back Electron's install script, run `
 | --- | --- |
 | WASD, Space | Move, jump |
 | Hold RMB (or toggle F) | Raise the camera; click to take a photo |
-| Wheel while the camera is up | Widen the frame to take in several things (chapter 2 on) |
+| Wheel up / down, or G, while the camera is up | Widen or narrow the frame to take in several things (chapter 2 on) |
 | 1 / 2 / 3, wheel | Hold up a photo; click to develop it |
 | Q / E | Turn the photo you're holding by 90° |
 | T | Switch between film and negative (chapter 3) |

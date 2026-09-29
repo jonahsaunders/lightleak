@@ -73,7 +73,7 @@ addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'Tab') e.preventDefault();
   live.keys.add(e.code);
   if (e.repeat) return;
-  const map = { KeyF: 'aimtoggle', KeyR: 'reset', KeyX: 'discard', KeyZ: 'undo', KeyT: 'film', KeyQ: 'rotate:-1', KeyE: 'rotate:1', Digit1: 'select:0', Digit2: 'select:1', Digit3: 'select:2' };
+  const map = { KeyF: 'aimtoggle', KeyG: 'frame:cycle', KeyR: 'reset', KeyX: 'discard', KeyZ: 'undo', KeyT: 'film', KeyQ: 'rotate:-1', KeyE: 'rotate:1', Digit1: 'select:0', Digit2: 'select:1', Digit3: 'select:2' };
   if (map[e.code]) act(map[e.code]);
   if (e.code === 'F2' && editor) { e.preventDefault(); e.stopImmediatePropagation(); openEditor(); }
 });
@@ -92,9 +92,15 @@ addEventListener('mousemove', e => {
   live.yaw -= e.movementX * s;
   live.pitch = THREE.MathUtils.clamp(live.pitch - e.movementY * s, -1.5, 1.5);
 });
+// Wheel up widens the frame, down narrows it. Deltas are summed so a trackpad swipe moves one
+// step per notch's worth of scrolling instead of racing to the end.
+let wheelAcc = 0;
 addEventListener('wheel', e => {
   if (G.mode !== 'playing' || !locked) return;
-  const d = e.deltaY > 0 ? 1 : -1;
+  wheelAcc += e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY;
+  if (Math.abs(wheelAcc) < 40) return;
+  const d = wheelAcc > 0 ? 1 : -1;
+  wheelAcc = 0;
   if (G.aim) act(`frame:${-d}`);
   else if (G.roll.length) act(`cycle:${d}`);
 }, { passive: true });
@@ -124,7 +130,15 @@ function handle(a) {
   else if (name === 'cycle') { const k = G.roll.length; G.selected = G.selected < 0 ? (n > 0 ? 0 : k - 1) : (G.selected + n + k) % k; G.aimToggle = false; emit('rollChanged'); }
   else if (name === 'rotate') { const p = G.roll[G.selected]; if (p) { p.rot = (p.rot + n + 4) % 4; if (!G.headless) SFX.click(); emit('rollChanged'); } }
   else if (name === 'discard') discard();
-  else if (name === 'frame') { if (L.def.wide) G.frameIdx = THREE.MathUtils.clamp(G.frameIdx + n, 0, CAMERA.frames.length - 1); }
+  else if (name === 'frame') {
+    const last = CAMERA.frames.length - 1;
+    if (!L.def.wide) toast('This camera frames one thing at a time until chapter 2.');
+    else {
+      const next = arg === 'cycle' ? (G.frameIdx + 1) % (last + 1) : THREE.MathUtils.clamp(G.frameIdx + n, 0, last);
+      if (next !== G.frameIdx && !G.headless) SFX.click();
+      G.frameIdx = next;
+    }
+  }
   else if (name === 'film') {
     const other = G.filmMode === 'pos' ? 'neg' : 'pos';
     if ((L.def.film?.[other] ?? 0) > 0) { G.filmMode = other; if (!G.headless) SFX.click(); emit('rollChanged'); }

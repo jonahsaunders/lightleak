@@ -5,7 +5,7 @@
   "film": {
     "pos": 1
   },
-  "hint": "One frame of film, two plates. Raise the camera and roll the mouse wheel to widen the frame until both crates light up.",
+  "hint": "One frame of film, two plates. Raise the camera, then roll the wheel up (or press G) to widen the frame until both crates light up.",
   "room": {
     "x0": -7,
     "x1": 7,

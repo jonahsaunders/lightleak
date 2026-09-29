@@ -67,7 +67,7 @@ export function updateRoll() {
   }
   const hasNeg = (L.def.film?.neg ?? 0) > 0;
   $('keys').innerHTML = [
-    L.def.wide ? '<kbd>Wheel</kbd> frame size (camera up)' : '',
+    L.def.wide ? '<kbd>Wheel</kbd>/<kbd>G</kbd> frame size (camera up)' : '',
     hasNeg ? '<kbd>T</kbd> switch film' : '',
     '<kbd>Q</kbd><kbd>E</kbd> turn photo',
     '<kbd>Z</kbd> undo', '<kbd>R</kbd> restart',
@@ -144,6 +144,10 @@ export function updateAim() {
     const wide = frac && L.def.wide;
     f.hidden = !wide;
     if (wide) { f.style.width = `${frac * 100}%`; f.style.height = `${frac * 100}%`; }
+    // always say what the frame takes in, and how to change it
+    const size = $('vf-size');
+    size.hidden = !L.def.wide;
+    if (L.def.wide) size.textContent = frac ? `FRAME ${Math.round(frac * 100)}% · WHEEL ↑↓ OR G` : 'FRAME: ONE THING · WHEEL ↑ OR G TO WIDEN';
     vf.classList.toggle('locked', group.length > 0);
     vf.classList.toggle('negative', G.filmMode === 'neg');
     $('vf-mode').textContent = G.filmMode === 'neg' ? 'NEGATIVE' : 'FILM';
