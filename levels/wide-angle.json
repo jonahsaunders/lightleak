@@ -1,7 +1,7 @@
 {
   "id": "wide-angle",
   "name": "Wide Angle",
-  "hint": "The plate is in a low cubby. Photograph from far away, develop up close, and whatever you shot comes out small.",
+  "hint": "Restore the small inspection scale.",
   "film": {
     "pos": 3
   },
@@ -94,7 +94,8 @@
         1.6
       ],
       "need": 0.2,
-      "label": 2.2
+      "label": 2.2,
+      "purpose": "Freight shutter"
     }
   ],
   "props": [
@@ -109,7 +110,8 @@
         2.4,
         2.4,
         2.4
-      ]
+      ],
+      "label": "Equipment weight"
     }
   ],
   "lights": [
@@ -210,5 +212,7 @@
     "nudge2": [
       "Photograph the block from the far end of the room, then develop it close to you. Distance works both ways."
     ]
-  }
+  },
+  "department": "storage",
+  "route": "Restoration / Models \u2192"
 }

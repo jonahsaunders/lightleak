@@ -1,7 +1,7 @@
 {
   "id": "exposure",
   "name": "Exposure",
-  "hint": "The crate is behind glass. Hold right mouse (or press F) to raise the camera and photograph it, then press 1 and click to develop the photo on the plate.",
+  "hint": "Restore power to the accession shutter.",
   "film": {
     "pos": 3
   },
@@ -80,7 +80,8 @@
         2,
         2
       ],
-      "need": 0.5
+      "need": 0.5,
+      "purpose": "Freight shutter"
     }
   ],
   "props": [
@@ -95,7 +96,8 @@
         1,
         1,
         1
-      ]
+      ],
+      "label": "Archive case"
     }
   ],
   "lights": [
@@ -123,6 +125,15 @@
       ],
       "intensity": 0.6,
       "dist": 8
+    },
+    {
+      "pos": [
+        0,
+        3,
+        -6.5
+      ],
+      "intensity": 0.8,
+      "dist": 6
     }
   ],
   "decor": [
@@ -185,21 +196,59 @@
   ],
   "story": {
     "start": [
-      "This is the archive camera. It copies things.",
-      "Point it, hold the button, and the thing goes onto film. Develop the film somewhere else and the thing is there too.",
-      "The original stays exactly where it was. Originals always do."
+      "Accession is closed. The scale still works.",
+      "The case behind the glass is safe to copy. The original belongs to someone."
     ],
     "photo": [
-      "A clean exposure. Good."
+      "The original is still there. Your copy can travel."
     ],
     "door": [
       "The door opens when the plate is satisfied. Everything here is easy to satisfy if you give it what it wants."
     ],
     "nudge": [
-      "Hold the right mouse button to raise the camera. Point it at the crate, not the glass."
+      "The camera can see through glass. Hold RMB or press F to raise it."
     ],
     "nudge2": [
-      "Then press 1 to hold the photo up, look at the plate, and click. It really is that simple. Most things are."
+      "Photograph the case. Press 1 to hold its picture, then develop the copy on the scale."
     ]
-  }
+  },
+  "department": "storage",
+  "route": "Restoration / Models \u2192",
+  "tutorial": true,
+  "mustPass": [
+    {
+      "why": "photograph from a different angle and scale",
+      "steps": [
+        {
+          "walk": [
+            1.5,
+            1
+          ]
+        },
+        {
+          "shoot": [
+            4.3,
+            0.9,
+            0
+          ]
+        },
+        {
+          "develop": [
+            0,
+            0.08,
+            -6.5
+          ]
+        },
+        {
+          "walk": [
+            2.5,
+            -8
+          ]
+        },
+        {
+          "exit": true
+        }
+      ]
+    }
+  ]
 }

@@ -17,6 +17,7 @@ import { openDoor } from './level.js';
 import { SFX } from './audio.js';
 import { storyEvent } from './story.js';
 import { SET } from './settings.js';
+import { lightReachesPlayer } from './exposure.js';
 
 const THREE = window.THREE;
 const V3 = THREE.Vector3, Q = THREE.Quaternion;
@@ -161,16 +162,7 @@ export function restoreBoss(s) {
 }
 
 // Can the lens see the player? Glass lets light through; everything else blocks it.
-function lensSees(from) {
-  const L = G.L, R = G.R, b = L.boss;
-  const head = { x: P.pos.x, y: P.pos.y + PLAYER.height * 0.6, z: P.pos.z };
-  const d = new V3(head.x - from.x, head.y - from.y, head.z - from.z);
-  const dist = d.length();
-  d.normalize();
-  const hit = L.world.castRay(new R.Ray(from, { x: d.x, y: d.y, z: d.z }), dist, true, R.QueryFilterFlags.EXCLUDE_SENSORS, undefined, b.headCollider, P.body,
-    c => { const i = L.colliders.get(c.handle); return !i || i.kind !== 'glass'; });
-  return !hit || hit.timeOfImpact >= dist - 0.3;
-}
+function lensSees(from) { return lightReachesPlayer(from, G.L.boss.headCollider); }
 
 // Called by the camera: is the Curator itself in the shot? Ends the fight once it's on the floor.
 export function photographBoss() {
@@ -324,3 +316,4 @@ export function bossHUD() {
     : 'Photograph it';
   return { goal, straps: b.straps.length, cut: b.cuts, exposure: b.exposure, hits: b.cfg.hits, defeated: b.defeated };
 }
+

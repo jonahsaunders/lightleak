@@ -1,7 +1,7 @@
 {
   "id": "ascent",
   "name": "Ascent",
-  "hint": "No stairs up to the door. You can jump about a metre and a quarter.",
+  "hint": "Reach the upper storage door.",
   "film": {
     "pos": 3
   },
@@ -43,7 +43,8 @@
         1.2,
         1.2,
         1.2
-      ]
+      ],
+      "label": "Archive case"
     }
   ],
   "lights": [
@@ -209,7 +210,8 @@
         {
           "exit": true
         }
-      ]
+      ],
+      "category": "bypass"
     }
   ],
   "story": {
@@ -226,5 +228,7 @@
     "nudge2": [
       "Two steps: a short one you can climb onto, and a taller one beside it."
     ]
-  }
+  },
+  "department": "storage",
+  "route": "Restoration / Models \u2192"
 }

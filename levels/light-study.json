@@ -1,0 +1,167 @@
+{
+  "id": "light-study",
+  "name": "Light Inspection",
+  "department": "restoration",
+  "route": "Wet Processing \u2192",
+  "hint": "Observe the inspection light from behind solid cover. It cannot harm you.",
+  "film": {},
+  "room": {
+    "x0": -6,
+    "x1": 6,
+    "z0": -12,
+    "z1": 6,
+    "h": 6,
+    "door": {
+      "x": 0
+    }
+  },
+  "blocks": [
+    {
+      "min": [
+        -0.9,
+        0,
+        -1.9
+      ],
+      "max": [
+        0.9,
+        3.4,
+        -0.1
+      ],
+      "mat": "ledge"
+    },
+    {
+      "min": [
+        2.5,
+        0,
+        -1.9
+      ],
+      "max": [
+        4,
+        3.4,
+        -1.8
+      ],
+      "mat": "glass"
+    }
+  ],
+  "props": [],
+  "plates": [],
+  "inspection": {
+    "pos": [
+      0,
+      5,
+      -8
+    ],
+    "interval": 5
+  },
+  "lights": [
+    {
+      "pos": [
+        -4,
+        6,
+        2
+      ],
+      "panel": true,
+      "intensity": 0.25
+    },
+    {
+      "pos": [
+        4,
+        6,
+        -7
+      ],
+      "panel": true,
+      "intensity": 0.2
+    }
+  ],
+  "decor": [
+    {
+      "kind": "card",
+      "pos": [
+        -5.99,
+        1.7,
+        2
+      ],
+      "rot": 90,
+      "title": "Inspection protocol",
+      "text": "Inspection lamp: no fixing agent. Harmless.\nSolid objects stop light. Glass does not.\nRecord one sheltered exposure to release the shutter."
+    }
+  ],
+  "spawn": {
+    "pos": [
+      3,
+      0,
+      3
+    ],
+    "yaw": 0
+  },
+  "story": {
+    "start": [
+      "This is only an inspection lamp. There is no fixing agent. You cannot be hurt here.",
+      "Wren had me add the shelter interlock. She wanted the technicians to be able to step away."
+    ],
+    "inspection:exposed": [
+      "That is an exposure. Harmless here. In the enlarging room, I use a stronger lamp."
+    ],
+    "inspection:sheltered": [
+      "The pillar stopped the light. Glass would not have. The interlock has released the shutter."
+    ],
+    "nudge": [
+      "Stand in the shadow cast by the solid pillar and wait for the lamp to finish charging."
+    ],
+    "nudge2": [
+      "Move behind the central pillar, near the entrance, and wait for one exposure. Then go through the open shutter."
+    ]
+  },
+  "solution": [
+    {
+      "wait": 5.2
+    },
+    {
+      "walk": [
+        0,
+        3
+      ]
+    },
+    {
+      "wait": 5.2
+    },
+    {
+      "walk": [
+        -2,
+        -3
+      ]
+    },
+    {
+      "walk": [
+        -2,
+        -10
+      ]
+    },
+    {
+      "exit": true
+    }
+  ],
+  "mustFail": [
+    {
+      "why": "walk out before observing a sheltered exposure",
+      "category": "bypass",
+      "steps": [
+        {
+          "walk": [
+            4,
+            -5
+          ]
+        },
+        {
+          "walk": [
+            4,
+            -10
+          ]
+        },
+        {
+          "exit": true
+        }
+      ]
+    }
+  ]
+}

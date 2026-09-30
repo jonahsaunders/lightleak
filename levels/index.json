@@ -13,7 +13,8 @@
         "depth-of-field",
         "wide-angle",
         "ascent",
-        "overhang"
+        "overhang",
+        "service-gallery"
       ]
     },
     {
@@ -23,7 +24,8 @@
         "doubling",
         "staircase",
         "turnaround",
-        "terrace"
+        "terrace",
+        "light-study"
       ]
     },
     {
@@ -33,7 +35,8 @@
         "clearance",
         "undercut",
         "window",
-        "darkroom"
+        "darkroom",
+        "return-gallery"
       ]
     },
     {

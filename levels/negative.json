@@ -5,7 +5,7 @@
   "film": {
     "neg": 1
   },
-  "hint": "This roll is negative film. Develop a negative on the red emulsion and it dissolves.",
+  "hint": "Open the sealed processing door.",
   "room": {
     "x0": -6,
     "x1": 6,
@@ -56,7 +56,8 @@
         0.8,
         0.8,
         0.8
-      ]
+      ],
+      "label": "Archive case"
     }
   ],
   "lights": [
@@ -119,17 +120,20 @@
   ],
   "story": {
     "start": [
-      "Ah. You've found the negatives.",
-      "Please don't. Negatives are for reference. They're not for taking things away."
+      "This is the processing wing. The doors are sealed with emulsion.",
+      "The reference roll is negative film. Please be careful with what you remove."
     ],
     "dissolve": [
       "That was part of the collection."
     ],
     "nudge": [
-      "Press T for the negative film. I would rather you didn't."
+      "Your camera is already loaded with negative film. It records an absence."
     ],
     "nudge2": [
       "Photograph anything on negative film, then develop it onto the red emulsion."
     ]
-  }
+  },
+  "department": "wet",
+  "route": "Enlarging / Exhibition \u2192",
+  "tutorial": true
 }

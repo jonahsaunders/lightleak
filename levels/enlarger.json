@@ -6,7 +6,7 @@
     "pos": 6,
     "neg": 4
   },
-  "hint": "Stay in the shadows it casts. Load its counterweights, cut its straps, then take its picture.",
+  "hint": "The Curator has prepared your portrait.",
   "room": {
     "x0": -12,
     "x1": 12,
@@ -219,7 +219,8 @@
         1,
         1,
         1
-      ]
+      ],
+      "label": "Equipment weight"
     },
     {
       "type": "steel",
@@ -232,7 +233,8 @@
         1,
         1,
         1
-      ]
+      ],
+      "label": "Equipment weight"
     }
   ],
   "plates": [
@@ -246,7 +248,8 @@
         2.4,
         2.4
       ],
-      "need": 5
+      "need": 5,
+      "purpose": "Enlarger counterweight"
     },
     {
       "pos": [
@@ -258,7 +261,8 @@
         2.4,
         2.4
       ],
-      "need": 5
+      "need": 5,
+      "purpose": "Enlarger counterweight"
     }
   ],
   "lights": [
@@ -376,8 +380,8 @@
   },
   "story": {
     "start": [
-      "You came all this way to be printed properly. That's thoughtful.",
-      "Stand in the light, please. It's only one flash, and then you'll never have to move again."
+      "I can preserve you without the damp, without the fading.",
+      "I know you did not ask. I am still afraid of losing what Wren left."
     ],
     "dodged": [
       "Hold still. Everyone moves the first time."
@@ -398,7 +402,7 @@
       "Don't touch those!"
     ],
     "cut2": [
-      "I'm slipping. Please. I have everyone in here."
+      "I am slipping. The collection is still in here. Please keep it dry."
     ],
     "falling": [
       "No, no, no\u2014"
@@ -408,15 +412,15 @@
       "Don't point that at me. I'm the one who takes the pictures."
     ],
     "defeated": [
-      "Oh.",
-      "Is that me? I look... preserved.",
-      "It's very quiet in here."
+      "So this is what the other side of a photograph feels like.",
+      "Keep the first portrait. Wren asked for that one.",
+      "Open the archive."
     ],
     "nudge": [
-      "Stand in the shadow of something solid and my light can't reach you. I'd prefer you hadn't noticed."
+      "The inspection lesson still applies. Solid cover blocks my light. Glass does not."
     ],
     "nudge2": [
-      "The plates are my counterweights. The straps are emulsion. You know what negatives do to emulsion."
+      "Load both counterweights to retract the metal sleeves. Dissolve the exposed emulsion straps with negatives, then photograph my fallen lens."
     ]
   },
   "solution": [
@@ -611,7 +615,10 @@
           "exit": true,
           "timeout": 8
         }
-      ]
+      ],
+      "category": "bypass"
     }
-  ]
+  ],
+  "department": "exhibition",
+  "route": "Daylight \u2192"
 }

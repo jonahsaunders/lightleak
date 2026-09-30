@@ -10,6 +10,7 @@ const JUMP_V = Math.sqrt(2 * PLAYER.gravity * PLAYER.jump);
 
 export const P = {
   pos: new V3(), prev: new V3(), vel: new V3(), yaw: 0, pitch: 0, grounded: false,
+  coyote: 0, jumpBuffer: 0, jumpHeld: false,
   body: null, collider: null, ctrl: null,
 };
 
@@ -32,7 +33,7 @@ export function placePlayer(pos, yaw, pitch = 0) {
   P.pos.fromArray(pos); P.prev.copy(P.pos);
   P.vel.set(0, 0, 0);
   P.yaw = yaw; P.pitch = pitch;
-  P.grounded = false;
+  P.grounded = false; P.coyote = 0; P.jumpBuffer = 0; P.jumpHeld = false;
   const c = { x: P.pos.x, y: P.pos.y + PLAYER.height / 2, z: P.pos.z };
   P.body.setTranslation(c, true);
   P.body.setNextKinematicTranslation(c);
@@ -49,7 +50,13 @@ export function stepPlayer(input) {
   const acc = (P.grounded ? 60 : 14) * DT;
   P.vel.x += THREE.MathUtils.clamp(wx * PLAYER.speed - P.vel.x, -acc, acc);
   P.vel.z += THREE.MathUtils.clamp(wz * PLAYER.speed - P.vel.z, -acc, acc);
-  if (P.grounded && input.jump) { P.vel.y = JUMP_V; P.grounded = false; }
+  // Forgive an early press before landing, or a late press just after a ledge.
+  P.coyote = P.grounded ? PLAYER.coyote : Math.max(0, P.coyote - DT);
+  P.jumpBuffer = input.jump && !P.jumpHeld ? PLAYER.jumpBuffer : Math.max(0, P.jumpBuffer - DT);
+  P.jumpHeld = !!input.jump;
+  if (P.coyote > 0 && P.jumpBuffer > 0) {
+    P.vel.y = JUMP_V; P.grounded = false; P.coyote = 0; P.jumpBuffer = 0;
+  }
   // While grounded, don't push down into the floor: Rapier's controller then sometimes refuses the
   // horizontal part of the move. Snap-to-ground keeps us on the floor, and walking off an edge
   // ungrounds us so gravity takes over next tick.
@@ -75,3 +82,4 @@ export function stepPlayer(input) {
 export function eyePosition(out, alpha = 1) {
   return out.lerpVectors(P.prev, P.pos, alpha).add(new V3(0, PLAYER.eye, 0));
 }
+

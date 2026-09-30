@@ -8,15 +8,36 @@
 import { G } from './state.js';
 import { SFX } from './audio.js';
 import { P } from './player.js';
+import { HintState } from './hints.js';
+import { sessionEvent } from './sessions.js';
 
 const $ = id => document.getElementById(id);
 const queue = [];
-let current = null, shown = 0, hold = 0, fired = new Set(), wait = 0, idle = 0, hintT = 0;
+let current = null, shown = 0, hold = 0, fired = new Set(), wait = 0, hintT = 0, help = new HintState();
 // events that count as getting somewhere; anything else leaves the stuck timer running
-const PROGRESS = new Set(['photo', 'negative', 'develop', 'dissolve', 'plate', 'door', 'phase2', 'phase3']);
+const PROGRESS = new Set(['photo', 'negative', 'develop', 'door', 'phase2', 'phase3', 'inspection:sheltered']);
+
+export function storyProgress(key) { if (!G.headless) help.progress(key); }
+export function storyAttempt(key) { if (!G.headless) help.attempt(key); }
+export function storyFailure() { if (!G.headless) help.fail(); }
+
+export function requestHint(tier = Math.min(2, help.shown + 1)) {
+  if (!G.L || G.L.finished || G.headless) return;
+  const def = G.L.def;
+  const lines = def.story?.[tier === 1 ? 'nudge' : 'nudge2'] || def.story?.nudge || [def.hint || 'Follow the archive signs toward the exit.'];
+  help.revealed(tier);
+  // A requested hint takes precedence over queued chatter and remains readable in the corner.
+  queue.length = 0; current = null; wait = 0;
+  for (const line of lines) queue.push(typeof line === 'string' ? { who: 'CURATOR', text: line } : { who: 'CURATOR', ...line });
+  $('fi-hint').textContent = lines.map(line => typeof line === 'string' ? line : line.text).join(' ');
+  $('fi-hint').classList.remove('quiet'); hintT = 0;
+  sessionEvent('hint');
+}
+
 
 export function storyReset() {
-  queue.length = 0; current = null; fired = new Set(); idle = 0; hintT = 0;
+  queue.length = 0; current = null; fired = new Set(); help = new HintState(); hintT = 0;
+  $('fi-hint').textContent = G.L?.def.hint || '';
   document.getElementById('fi-hint')?.classList.remove('quiet');
   wait = 1.6; // let the title card go first
   $('subtitle').hidden = true;
@@ -24,8 +45,9 @@ export function storyReset() {
 
 export function storyEvent(name) {
   if (G.headless || G.shots || !G.L) return;
-  if (PROGRESS.has(name) || /^cut/.test(name)) idle = 0;
-  if (name.startsWith('nudge')) document.getElementById('fi-hint')?.classList.remove('quiet');
+  if (PROGRESS.has(name) || /^cut/.test(name)) storyProgress(name);
+  if (name === 'fall' || name === 'undo') storyFailure();
+  if (name.startsWith('nudge')) { requestHint(name === 'nudge2' ? 2 : 1); return; }
   const lines = G.L.def.story?.[name];
   if (!lines || fired.has(name)) return;
   fired.add(name);
@@ -39,13 +61,12 @@ export function storyBusy() { return !!current || queue.length > 0; }
 export function storyFrame(dt) {
   if (!G.L) return;
   // stuck? the Curator notices, in its own way; the corner hint comes back too
-  idle += dt; hintT += dt;
+  help.step(dt); hintT += dt;
   if (hintT > 16) document.getElementById('fi-hint')?.classList.add('quiet');
-  if (idle > 70 && !G.L.finished) storyEvent('nudge');
-  if (idle > 150 && !G.L.finished) storyEvent('nudge2');
+  if (help.due() && !G.L.finished) requestHint(help.due());
   for (const z of G.L.def.story?.zones || []) {
     const [a, b] = [z.min, z.max];
-    if (P.pos.x > a[0] && P.pos.x < b[0] && P.pos.y > a[1] - 0.5 && P.pos.y < b[1] && P.pos.z > a[2] && P.pos.z < b[2]) storyEvent(`zone:${z.name}`);
+    if (P.pos.x > a[0] && P.pos.x < b[0] && P.pos.y > a[1] - 0.5 && P.pos.y < b[1] && P.pos.z > a[2] && P.pos.z < b[2]) { storyProgress(`zone:${z.name}`); storyEvent(`zone:${z.name}`); }
   }
   const box = $('subtitle');
   if (wait > 0) { wait -= dt; return; }
@@ -66,3 +87,4 @@ export function storyFrame(dt) {
     if (hold > 1.4 + current.text.length * 0.03) { current = null; wait = 0.25; }
   }
 }
+

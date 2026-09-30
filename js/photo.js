@@ -5,10 +5,11 @@
 // Developing scales everything by k = d / d0: the new distance from your eye over the old one.
 import { G, emit } from './state.js';
 import { CAMERA, NAMES } from './config.js';
+import { captureAngles } from './framing.js';
 import { addProp, removeProp, eraseStatic, pushUndo, propMass } from './level.js';
 import { P } from './player.js';
 import { SFX } from './audio.js';
-import { storyEvent } from './story.js';
+import { storyEvent, storyProgress, storyAttempt, storyFailure } from './story.js';
 import { photographBoss } from './boss.js';
 import { vmShot, vmDevelop } from './viewmodel.js';
 import { grow, fadeOut } from './fx.js';
@@ -67,8 +68,7 @@ function visible(p) {
 // The viewfinder is 72% of the screen's height and 4:3, which is what the HUD draws.
 export function frameRect() {
   const f = CAMERA.frames[G.frameIdx];
-  const t = Math.tan(THREE.MathUtils.degToRad(G.logicFov || G.camera.fov) / 2); // the simulation's fixed FOV, not the display's
-  return { tx: 0.96 * f * t, ty: 0.72 * f * t, frac: f };
+  return { ...captureAngles(G.logicFov || G.camera.fov, f), frac: f };
 }
 
 // Everything a photo taken right now would contain.
@@ -119,7 +119,7 @@ export function takePhoto() {
   const inv = yawQ.clone().invert();
   const ref = group[0].mesh.position.clone();
   const items = group.map(p => ({
-    type: p.type, size: p.size.slice(),
+    label: p.label, type: p.type, size: p.size.slice(),
     p: p.mesh.position.clone().sub(ref).applyQuaternion(inv),
     q: inv.clone().multiply(p.mesh.quaternion),
   }));
@@ -130,16 +130,17 @@ export function takePhoto() {
   const worldCenter = center.clone().applyQuaternion(yawQ).add(ref);
   const photo = {
     neg,
-    items: items.map(it => ({ type: it.type, size: it.size, p: it.p.toArray(), q: it.q.toArray() })),
+    items: items.map(it => ({ label: it.label, type: it.type, size: it.size, p: it.p.toArray(), q: it.q.toArray() })),
     half: box.getSize(new V3()).multiplyScalar(0.5).toArray(),
     d0: Math.max(0.3, worldCenter.distanceTo(eye())),
     rot: 0,
     img: '',
     mass: group.reduce((m, p) => m + p.mass, 0),
-    label: group.length > 1 ? `${group.length} objects` : NAMES[group[0].type],
+    label: group.length > 1 ? `${group.length} objects` : group[0].label || NAMES[group[0].type],
     born: performance.now(),
   };
   G.roll.push(photo);
+  storyAttempt(`shot:${neg}:${group.map(p => p.id).join(',')}:${Math.round(photo.d0)}`);
   G.aimToggle = false;
   if (!G.headless) { G.pendingThumb = photo; SFX.shutter(); SFX.lever(); SFX.eject(); emit('flash'); vmShot(); }
   emit('rollChanged');
@@ -189,7 +190,7 @@ function poses(photo, center, qG, k) {
   return photo.items.map(it => {
     const q = qG.clone().multiply(new Q().fromArray(it.q));
     const pos = new V3().fromArray(it.p).multiplyScalar(k).applyQuaternion(qG).add(center);
-    return { type: it.type, size: it.size.map(v => v * k), pos, q };
+    return { label: it.label, type: it.type, size: it.size.map(v => v * k), pos, q };
   });
 }
 
@@ -307,12 +308,13 @@ export function develop() {
   if (!pl) { deny('Aim at something to develop onto.'); return false; }
   if (!pl.valid) { deny(photo.neg ? 'Nothing there for the negative to dissolve.' : pl.reason === 'TOO CLOSE' ? "That's where you're standing." : "It won't fit there."); return false; }
   pushUndo();
+  storyAttempt(`develop:${photo.neg}:${Math.round(pl.center.x)},${Math.round(pl.center.y)},${Math.round(pl.center.z)}:${Math.round(pl.k * 2)}`);
   if (photo.neg) {
-    for (const r of pl.erase) { fadeOut(r.mesh); if (r.body) removeProp(r); else eraseStatic(r); }
+    for (const r of pl.erase) { storyProgress(`dissolve:${r.body ? 'prop' : 'static'}:${r.id}`); fadeOut(r.mesh); if (r.body) removeProp(r); else eraseStatic(r); }
     if (!G.headless) SFX.erase();
   } else {
     for (const pose of pl.poses) {
-      const p = addProp(pose.type, pose.size, pose.pos.toArray(), pose.q.toArray());
+      const p = addProp(pose.type, pose.size, pose.pos.toArray(), pose.q.toArray(), null, null, pose.label);
       p.flash = 1;
       grow(p);
     }
@@ -338,7 +340,9 @@ export function discard() {
 }
 
 function deny(msg) {
+  storyFailure();
   if (!G.headless) SFX.deny();
   emit('toast', msg);
   G.lastDeny = msg;
 }
+
