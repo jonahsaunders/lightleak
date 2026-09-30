@@ -125,5 +125,7 @@
       "exit": true,
       "timeout": 30
     }
-  ]
+  ],
+  "department": "exhibition",
+  "route": "Daylight \u2192"
 }

@@ -156,6 +156,12 @@ export async function runTests(tick, ids = null) {
       loadLevel(def);
       const flicker = auditLevel();
       results.push(flicker.length ? { id: `${id} ◫`, ok: false, why: `${flicker.length} z-fighting spot(s): ${flicker.slice(0, 3).join('; ')}` } : { id: `${id} ◫`, ok: true, seconds: 0, note: 'no z-fighting' });
+      // Valid alternative reasoning is explicitly welcomed and kept working.
+      for (const [i, alt] of (def.mustPass || []).entries()) {
+        const a = await play(def, alt.steps);
+        results.push(a.finished ? { id: `${id} +${i + 1}`, ok: true, seconds: a.ticks * DT, note: alt.why }
+          : { id: `${id} +${i + 1}`, ok: false, why: `alternative failed: ${alt.why}: ${a.error || 'did not finish'}` });
+      }
       // Shortcuts the design means to rule out: each must NOT finish the level.
       for (const [i, bad] of (def.mustFail || []).entries()) {
         const b = await play(def, bad.steps);
@@ -170,3 +176,4 @@ export async function runTests(tick, ids = null) {
   }
   return { results, passed: results.filter(r => r.ok).length, failed: results.filter(r => !r.ok).length };
 }
+

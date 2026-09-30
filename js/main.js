@@ -1,6 +1,9 @@
 // Boot, the fixed-step loop, input, menus and level flow.
 import RAPIER from '../vendor/rapier.mjs';
 import { G, emit } from './state.js';
+import { handleCameraAction } from './actions.js';
+import { stepSimulation } from './simulation.js';
+import { gameViewport, capturePixels } from './framing.js';
 import { DT, CAMERA, PLAYER } from './config.js';
 import { initMaterials, ENV } from './materials.js';
 import { setQuality, getQuality, renderFrame, resizePost, setExposure } from './post.js';
@@ -16,11 +19,12 @@ import { initReview, openReview } from './review.js';
 import { SET, applySettings, settingsPanel } from './settings.js';
 import { runTests, Driver } from './driver.js';
 import { Editor } from './editor.js';
-import { storyReset, storyEvent, storyFrame } from './story.js';
+import { storyReset, storyEvent, storyFrame, requestHint } from './story.js';
 
 const THREE = window.THREE;
 const $ = id => document.getElementById(id);
 const V3 = THREE.Vector3;
+const gameSize = () => gameViewport(innerWidth, innerHeight);
 
 // ---------- renderer ----------
 const canvas = $('game');
@@ -41,8 +45,11 @@ Object.assign(G, { renderer, scene, camera });
 
 function resize() {
   if (!innerWidth || !innerHeight) return;
-  renderer.setSize(innerWidth, innerHeight, false);
-  camera.aspect = innerWidth / innerHeight;
+  const { w, h } = gameSize();
+  renderer.setSize(w, h, false);
+  canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
+  canvas.style.top = `${(innerHeight - h) / 2}px`;
+  camera.aspect = w / h;
   camera.updateProjectionMatrix();
   resizePost();
 }
@@ -82,7 +89,7 @@ addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'Tab') e.preventDefault();
   live.keys.add(e.code);
   if (e.repeat) return;
-  const map = { KeyF: 'aimtoggle', KeyG: 'frame:cycle', KeyR: 'reset', KeyX: 'discard', KeyZ: 'undo', KeyT: 'film', KeyQ: 'rotate:-1', KeyE: 'rotate:1', Digit1: 'select:0', Digit2: 'select:1', Digit3: 'select:2' };
+  const map = { KeyH: 'hint', KeyF: 'aimtoggle', KeyG: 'frame:cycle', KeyR: 'reset', KeyX: 'discard', KeyZ: 'undo', KeyT: 'film', KeyQ: 'rotate:-1', KeyE: 'rotate:1', Digit1: 'select:0', Digit2: 'select:1', Digit3: 'select:2' };
   if (map[e.code]) act(map[e.code]);
   if (e.code === 'F2' && editor) { e.preventDefault(); e.stopImmediatePropagation(); openEditor(); }
 });
@@ -143,6 +150,7 @@ function pollGamepad(dt) {
   if (edge(1)) act('undo');
   if (edge(2)) act('film');
   if (edge(8)) act('discard');
+  if (edge(11)) act('hint');
   if (edge(4)) act(G.aim ? 'frame:-1' : 'cycle:-1');
   if (edge(5)) act(G.aim ? 'frame:1' : 'cycle:1');
   if (edge(12)) act('frame:1');
@@ -172,30 +180,10 @@ function syncCamera(alpha = 1) {
 
 function handle(a) {
   const L = G.L;
-  const [name, arg] = a.split(':');
-  const n = Number(arg);
-  if (name === 'click') {
-    if (G.aim) { const neg = G.filmMode === 'neg'; if (takePhoto()) sessionEvent(neg ? 'negative' : 'photo'); }
-    else if (G.selected >= 0) { const p = G.roll[G.selected]; if (develop()) sessionEvent(p.neg ? 'dissolve' : 'develop'); }
-  }
-  else if (name === 'aimtoggle') { G.aimToggle = !G.aimToggle; if (G.aimToggle) G.selected = -1; emit('rollChanged'); }
-  else if (name === 'select') { G.selected = n >= G.roll.length || G.selected === n ? -1 : n; G.aimToggle = false; emit('rollChanged'); }
-  else if (name === 'cycle') { const k = G.roll.length; G.selected = G.selected < 0 ? (n > 0 ? 0 : k - 1) : (G.selected + n + k) % k; G.aimToggle = false; emit('rollChanged'); }
-  else if (name === 'rotate') { const p = G.roll[G.selected]; if (p) { p.rot = (p.rot + n + 4) % 4; if (!G.headless) SFX.click(); emit('rollChanged'); } }
-  else if (name === 'discard') discard();
-  else if (name === 'frame') {
-    const last = CAMERA.frames.length - 1;
-    if (!L.def.wide) toast('This camera frames one thing at a time until chapter 2.');
-    else {
-      const next = arg === 'cycle' ? (G.frameIdx + 1) % (last + 1) : THREE.MathUtils.clamp(G.frameIdx + n, 0, last);
-      if (next !== G.frameIdx && !G.headless) SFX.click();
-      G.frameIdx = next;
-    }
-  }
-  else if (name === 'film') {
-    const other = G.filmMode === 'pos' ? 'neg' : 'pos';
-    if ((L.def.film?.[other] ?? 0) > 0) { G.filmMode = other; if (!G.headless) { SFX.click(); filmSwitched(); vmSwitch(); } emit('rollChanged'); }
-  } else if (name === 'undo') {
+  const [name] = a.split(':');
+  if (handleCameraAction(a)) return;
+  if (name === 'hint') requestHint();
+  else if (name === 'undo') {
     const s = G.undo.pop();
     if (s) { restore(s); G.checkpoint = snapshot(); if (!G.headless) SFX.undo(); toast('Undone.'); storyEvent('undo'); sessionEvent('undo'); live.yaw = P.yaw; live.pitch = P.pitch; }
     else toast('Nothing to undo.');
@@ -209,38 +197,15 @@ function handle(a) {
 }
 
 export function tick(input) {
-  const L = G.L;
-  if (!L || L.finished) return;
-  P.yaw = input.yaw; P.pitch = input.pitch;
-  G.aim = input.aim || G.aimToggle;
-  const fov = G.aim ? CAMERA.aimFov : CAMERA.fov;
-  if (Math.abs(G.logicFov - fov) > 0.01) G.logicFov += (fov - G.logicFov) * Math.min(1, DT * 14);
-  syncCamera();
-  if (recording) record(input);
-  if (!driver && !G.headless) recordInput(input);
-  for (const a of input.actions) { handle(a); if (G.L !== L) return; }
-  stepPlayer(input);
-  stepWorld();
-  G.tick++;
-  if (L.boss && L.boss.zapped) {
-    // caught by the enlarger's flash: same as a fall, back to just after your last action
-    L.boss.zapped = false;
-    sessionEvent('overexposed');
-    restore(G.checkpoint);
-    toast('Overexposed. Back to your last shot.');
-    live.yaw = P.yaw; live.pitch = P.pitch;
-    return;
-  }
-  if (playerInExit()) finishLevel();
-  else if (P.pos.y < L.killY) {
-    // back to just after your last shot or development, with the photos you had then
-    if (!G.headless) SFX.fall();
-    storyEvent('fall');
-    sessionEvent('fall');
-    restore(G.checkpoint);
-    toast(G.undo.length ? 'You fell. Back to your last shot.' : 'You fell. Back to the start.');
-    live.yaw = P.yaw; live.pitch = P.pitch;
-  }
+  const result = stepSimulation(input, {
+    handle, syncCamera,
+    beforeActions(input) {
+      if (recording) record(input);
+      if (!driver && !G.headless) recordInput(input);
+    },
+  });
+  if (result === 'finished') finishLevel();
+  if (result === 'rewound') { live.yaw = P.yaw; live.pitch = P.pitch; }
 }
 
 // Recorded input for a solution demo: one entry per tick where something changed.
@@ -261,7 +226,8 @@ function startLevel(id, { quiet = false } = {}) {
   loadLevel(def);
   if (G.mode === 'playing' && !driver && !editorReturn && !G.headless) beginSession(def); else endSession('left');
   live.yaw = P.yaw; live.pitch = P.pitch;
-  G.logicFov = CAMERA.fov;
+  G.logicFov = CAMERA.fov; G.aimToggle = false;
+  live.actions.length = 0; live.keys.clear(); live.aimHeld = false;
   syncCamera();
   if (!quiet) showTitle(); else updateRoll();
   progress.last = id; store.set(progress);
@@ -310,7 +276,7 @@ function finishLevel() {
       document.exitPointerLock?.();
       showEnding();
     }
-  }, story ? 2300 : 700);
+  }, story ? 1200 : 700);
 }
 
 // ---------- menus ----------
@@ -322,6 +288,7 @@ function showMenu(msg) {
   const paused = G.mode === 'paused';
   $('play').textContent = paused ? 'Resume' : Object.keys(progress.done).length ? 'Continue' : 'Start';
   $('restart').hidden = !paused;
+  $('ask-hint').hidden = !paused;
   $('to-editor').hidden = !paused;
   const list = $('chapters');
   list.innerHTML = '';
@@ -345,7 +312,7 @@ function showMenu(msg) {
   }
 }
 function pause() { G.mode = 'paused'; stopAmbience(); showMenu(); }
-const ambienceFor = def => (def.bright ? 'outside' : def.boss ? 'enlarger' : 'archive');
+const ambienceFor = def => (def.bright ? 'outside' : def.boss ? 'enlarger' : def.department || 'archive');
 
 // Footsteps, from how far you've walked on the ground; the surface underfoot picks the sound.
 let stride = 0, leftFoot = false;
@@ -379,6 +346,7 @@ function begin(id) {
 $('play').onclick = () => (G.mode === 'paused' ? begin() : begin(nextUp()));
 $('restart').onclick = () => begin(G.L.def.id);
 $('to-editor').onclick = () => openEditor();
+$('ask-hint').onclick = () => { requestHint(); begin(); };
 $('to-review').onclick = () => openReview();
 $('gfx').onchange = e => { setQuality(e.target.value); try { localStorage.setItem('lightleak.gfx', e.target.value); } catch (err) { /* ignore */ } };
 settingsPanel($('settings-panel'));
@@ -423,7 +391,7 @@ function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
-  if (Math.abs(camera.aspect - innerWidth / innerHeight) > 1e-3) resize();
+  if (Math.abs(camera.aspect - gameSize().w / gameSize().h) > 1e-3) resize();
   pollGamepad(dt);
   if (G.mode === 'editor') { editor.frame(dt); renderFrame(); return; }
   if (G.mode === 'playing' && G.L) {
@@ -465,10 +433,11 @@ function finishThumb() {
   const photo = G.pendingThumb;
   G.pendingThumb = null;
   const k = renderer.getPixelRatio();
-  const h = innerHeight * 0.72, w = h * 4 / 3;
+  const viewport = gameSize();
+  const { w, h, x, y } = capturePixels(camera.fov, G.logicFov, viewport);
   const g = thumb.getContext('2d');
   g.filter = photo.neg ? 'invert(1) sepia(.2) contrast(1.2)' : 'sepia(.35) contrast(1.12) saturate(.9)';
-  g.drawImage(renderer.domElement, (innerWidth - w) / 2 * k, (innerHeight - h) / 2 * k, w * k, h * k, 0, 0, thumb.width, thumb.height);
+  g.drawImage(renderer.domElement, x * k, y * k, w * k, h * k, 0, 0, thumb.width, thumb.height);
   g.filter = 'none';
   photo.img = thumb.toDataURL('image/jpeg', 0.85);
   updateRoll();
@@ -494,7 +463,7 @@ async function boot() {
   ids.forEach((id, i) => { G.defs[id] = { ...defs[i], id }; });
   G.order = index.chapters.filter(c => !c.custom).flatMap(c => c.levels);
   G.hooks = {
-    toast, flash, rollChanged: updateRoll,
+    toast, flash, rollChanged: updateRoll, filmSwitched() { filmSwitched(); vmSwitch(); },
     levelLoaded() { G.checkpoint = snapshot(); storyReset(); storyEvent('start'); setExposure(G.L.def.bright ? 0.85 : 1.15); clearFX(); if (!G.headless && G.mode === 'playing') startAmbience(ambienceFor(G.L.def)); },
     acted() { G.checkpoint = snapshot(); },
     shake(a) { if (SET.shake) shake = Math.max(shake, a); },
@@ -536,3 +505,4 @@ boot().catch(e => { console.error(e); $('menu-msg').hidden = false; $('menu-msg'
 window.lightleak = { G, P, tick, startLevel, pushUndo, input: () => liveInput(), setDriver: d => { driver = d; }, look: (yaw, pitch) => { live.yaw = yaw; live.pitch = pitch; }, act, get editor() { return editor; },
   // render right now and finish any pending photo thumbnail (used when staging screenshots)
   thumbNow: () => { syncCamera(); renderFrame(); if (G.pendingThumb) finishThumb(); } };
+

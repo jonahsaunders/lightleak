@@ -8,13 +8,14 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js --dev",
-    "test": "electron . --test",
+    "test": "node tools/check-game.mjs",
     "desktop": "electron .",
     "dist": "electron-builder --win",
     "dist:mac": "electron-builder --mac",
     "web": "node tools/webbuild.js",
     "icon": "node tools/icon.js",
-    "shots": "electron . --shots"
+    "shots": "electron . --shots",
+    "test:desktop": "electron . --test"
   },
   "engines": {
     "node": ">=18"

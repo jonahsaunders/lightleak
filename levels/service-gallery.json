@@ -1,0 +1,185 @@
+{
+  "id": "service-gallery",
+  "name": "Service Gallery",
+  "department": "exhibition",
+  "gallery": "first",
+  "route": "Restoration / Models \u2192",
+  "tutorial": true,
+  "hint": "Restore the gallery shutter. Its counterweight line is visible.",
+  "film": {
+    "pos": 2
+  },
+  "room": {
+    "x0": -6,
+    "x1": 6,
+    "z0": -13,
+    "z1": 6,
+    "h": 6,
+    "door": {
+      "x": 0
+    },
+    "windows": [
+      {
+        "side": "east",
+        "z": -4,
+        "width": 3,
+        "low": 1.3,
+        "high": 4.2,
+        "label": "ENLARGER SERVICE BAY",
+        "enlarger": true
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "min": [
+        -4.5,
+        0,
+        0.5
+      ],
+      "max": [
+        -3.5,
+        0.7,
+        1.5
+      ],
+      "mat": "ledge"
+    }
+  ],
+  "props": [
+    {
+      "type": "steel",
+      "label": "Gallery counterweight",
+      "pos": [
+        -4,
+        0.7,
+        1
+      ],
+      "size": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    }
+  ],
+  "plates": [
+    {
+      "pos": [
+        0,
+        0,
+        -9
+      ],
+      "size": [
+        2,
+        2
+      ],
+      "need": 0.5,
+      "purpose": "Gallery shutter"
+    }
+  ],
+  "lights": [
+    {
+      "pos": [
+        0,
+        6,
+        2
+      ],
+      "panel": true
+    },
+    {
+      "pos": [
+        0,
+        6,
+        -7
+      ],
+      "panel": true
+    }
+  ],
+  "decor": [
+    {
+      "kind": "card",
+      "pos": [
+        -5.99,
+        1.7,
+        2
+      ],
+      "rot": 90,
+      "title": "Wren / Restoration",
+      "text": "The first print was a rescue. The fifteenth was a replacement.\nPreservation is not consent. \u2014 W.A."
+    }
+  ],
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      3
+    ],
+    "yaw": 0
+  },
+  "story": {
+    "start": [
+      "This gallery held the staff portraits. Before the damp got in.",
+      "I saved one print for Wren. She asked me to. I can still do that much."
+    ],
+    "plate": [
+      "The counterweight lowers; the shutter rises. That is how my lens sleeves work, too."
+    ],
+    "door": [
+      "There. The paper is dry again. Wren would have wanted it kept safe.",
+      "The restoration department is ahead."
+    ],
+    "nudge": [
+      "Follow the copper line from the scale to the shutter. It needs a load."
+    ],
+    "nudge2": [
+      "Photograph the equipment weight on the plinth and develop it on the scale. The counterweight opens the shutter."
+    ]
+  },
+  "solution": [
+    {
+      "walk": [
+        -2,
+        1
+      ]
+    },
+    {
+      "shoot": [
+        -4,
+        1.025,
+        1
+      ]
+    },
+    {
+      "walk": [
+        0,
+        -5
+      ]
+    },
+    {
+      "develop": [
+        0,
+        0.08,
+        -9
+      ]
+    },
+    {
+      "walk": [
+        2,
+        -11.3
+      ]
+    },
+    {
+      "exit": true
+    }
+  ],
+  "mustFail": [
+    {
+      "why": "leave without loading the gallery counterweight",
+      "category": "bypass",
+      "steps": [
+        {
+          "exit": true
+        }
+      ]
+    }
+  ]
+}

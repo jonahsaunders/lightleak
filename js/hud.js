@@ -5,6 +5,7 @@ import { framedProps, solvePlacement, frameRect, aimedProp, ratioLabel } from '.
 import { grainDataURL } from './materials.js';
 import { SFX } from './audio.js';
 import { bossHUD } from './boss.js';
+import { capturePixels } from './framing.js';
 
 const THREE = window.THREE;
 const $ = id => document.getElementById(id);
@@ -78,12 +79,12 @@ export function updateRoll() {
   $('hud').classList.toggle('negative', hasNeg && G.filmMode === 'neg');
   const hasFilm = hasNeg || (L.def.film?.pos ?? 0) > 0;
   $('roll').style.display = hasFilm ? '' : 'none';
-  if (!hasFilm) { $('keys').innerHTML = '<kbd>R</kbd> restart'; return; }
+  if (!hasFilm) { $('keys').innerHTML = '<kbd>H</kbd> / R3 hint<br><kbd>R</kbd> restart'; return; }
   $('keys').innerHTML = [
     L.def.wide ? '<kbd>Wheel</kbd>/<kbd>G</kbd> frame size (camera up)' : '',
     hasNeg ? '<kbd>T</kbd> switch film' : '',
     '<kbd>Q</kbd><kbd>E</kbd> turn photo',
-    '<kbd>Z</kbd> undo', '<kbd>R</kbd> restart',
+    '<kbd>Z</kbd> undo', '<kbd>H</kbd> / R3 hint', '<kbd>R</kbd> restart',
   ].filter(Boolean).join('<br>');
 
   const r = $('roll');
@@ -172,6 +173,9 @@ export function updateAim() {
     const group = framedProps();
     setLit(group, HILITE);
     const { frac } = frameRect();
+    const canvas = G.renderer.domElement;
+    const bounds = capturePixels(G.camera.fov, G.logicFov, { w: canvas.clientWidth, h: canvas.clientHeight });
+    vf.style.width = `${bounds.w}px`; vf.style.height = `${bounds.h}px`;
     const f = $('vf-frame');
     const wide = frac && L.def.wide;
     f.hidden = !wide;
@@ -187,7 +191,7 @@ export function updateAim() {
       const e = G.camera.position;
       const c = group.reduce((a, p) => a.add(p.mesh.position), new THREE.Vector3()).multiplyScalar(1 / group.length);
       const mass = group.reduce((m, p) => m + p.mass, 0);
-      const what = group.length > 1 ? `${group.length} OBJECTS` : `${NAMES[group[0].type].toUpperCase()} · ${fmtM(Math.max(...group[0].size))} m`;
+      const what = group.length > 1 ? `${group.length} OBJECTS` : `${(group[0].label || NAMES[group[0].type]).toUpperCase()} · ${fmtM(Math.max(...group[0].size))} m`;
       $('vf-subject').textContent = `${what} · ${fmtT(mass)} t`;
       $('vf-dist').textContent = `${c.distanceTo(e).toFixed(1)} m`;
       prompt.innerHTML = L.film[G.filmMode] > 0 ? '<span class="ok">CLICK</span> take photo' : '<span class="bad">OUT OF FILM</span>';
@@ -199,7 +203,12 @@ export function updateAim() {
     return;
   }
   const photo = G.roll[G.selected];
-  if (!photo) { setLit([], NONE); prompt.textContent = ''; readCard(); return; }
+  if (!photo) {
+    setLit([], NONE);
+    prompt.textContent = L.def.tutorial ? (G.roll.length ? '1 / 2 / 3: hold a photograph · click: develop' : 'RMB / F: raise camera · click: photograph') : '';
+    if (L.inspection) prompt.textContent = L.inspection.complete ? 'Solid cover stopped the light. The shutter is open.' : L.inspection.warning ? 'Exposure imminent · find solid cover' : 'Inspection light · harmless · glass admits light';
+    readCard(); return;
+  }
   if (photo.keepsake) { setLit([], NONE); prompt.textContent = 'A photograph of the Curator.'; return; }
   const pl = solvePlacement(photo);
   if (!pl) { setLit([], NONE); prompt.innerHTML = '<span class="bad">NO SURFACE</span>'; return; }
@@ -253,3 +262,4 @@ function readCard() {
 
 function fmtM(v) { return v < 10 ? v.toFixed(2) : v.toFixed(1); }
 function fmtT(v) { return v < 10 ? v.toFixed(1) : Math.round(v).toString(); }
+

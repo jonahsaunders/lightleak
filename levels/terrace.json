@@ -5,7 +5,7 @@
   "film": {
     "pos": 2
   },
-  "hint": "Two ledges, one model stair, and film for two photos.",
+  "hint": "Reach the upper restoration landing.",
   "room": {
     "x0": -7,
     "x1": 7,
@@ -96,7 +96,8 @@
         1,
         0.5,
         1
-      ]
+      ],
+      "label": "Archive case"
     },
     {
       "type": "crate",
@@ -109,7 +110,8 @@
         1,
         1.0,
         1
-      ]
+      ],
+      "label": "Archive case"
     }
   ],
   "lights": [
@@ -254,5 +256,7 @@
     "nudge2": [
       "Take two photos of the model. Build the second stair on top of the first ledge."
     ]
-  }
+  },
+  "department": "restoration",
+  "route": "Wet Processing \u2192"
 }

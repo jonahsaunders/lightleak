@@ -5,7 +5,7 @@
   "film": {
     "pos": 1
   },
-  "hint": "One frame of film, two plates. Raise the camera, then roll the wheel up (or press G) to widen the frame until both crates light up.",
+  "hint": "Two mounts. One frame of film.",
   "room": {
     "x0": -7,
     "x1": 7,
@@ -69,7 +69,8 @@
         1,
         1,
         1
-      ]
+      ],
+      "label": "Archive case"
     },
     {
       "type": "crate",
@@ -82,7 +83,8 @@
         1,
         1,
         1
-      ]
+      ],
+      "label": "Archive case"
     }
   ],
   "plates": [
@@ -96,7 +98,8 @@
         2.4,
         2.4
       ],
-      "need": 0.8
+      "need": 0.8,
+      "purpose": "Display mount"
     },
     {
       "pos": [
@@ -108,7 +111,8 @@
         2.4,
         2.4
       ],
-      "need": 0.8
+      "need": 0.8,
+      "purpose": "Display mount"
     }
   ],
   "lights": [
@@ -246,7 +250,8 @@
         {
           "exit": true
         }
-      ]
+      ],
+      "category": "rule"
     }
   ],
   "story": {
@@ -260,5 +265,46 @@
     "nudge2": [
       "Raise the camera and roll the wheel up, or press G, until both crates light up. Then develop them between the plates."
     ]
-  }
+  },
+  "department": "restoration",
+  "route": "Wet Processing \u2192",
+  "tutorial": true,
+  "mustPass": [
+    {
+      "why": "develop the symmetric composition after a half turn",
+      "steps": [
+        {
+          "shoot": [
+            0,
+            0.5,
+            4.5
+          ],
+          "frame": 3
+        },
+        {
+          "walk": [
+            0,
+            -2
+          ]
+        },
+        {
+          "develop": [
+            0,
+            0.02,
+            -9
+          ],
+          "rot": 2
+        },
+        {
+          "walk": [
+            0,
+            -11
+          ]
+        },
+        {
+          "exit": true
+        }
+      ]
+    }
+  ]
 }

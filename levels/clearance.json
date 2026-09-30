@@ -6,7 +6,7 @@
     "pos": 1,
     "neg": 1
   },
-  "hint": "The plate is overloaded. T switches between film and negative.",
+  "hint": "Bring the overloaded drying rack into balance.",
   "room": {
     "x0": -6,
     "x1": 6,
@@ -44,7 +44,8 @@
         2.2
       ],
       "need": 0.5,
-      "max": 1.5
+      "max": 1.5,
+      "purpose": "Drying counterweight"
     }
   ],
   "props": [
@@ -59,7 +60,8 @@
         1.2,
         1.2,
         1.2
-      ]
+      ],
+      "label": "Equipment weight"
     },
     {
       "type": "crate",
@@ -72,7 +74,8 @@
         1,
         1,
         1
-      ]
+      ],
+      "label": "Archive case"
     }
   ],
   "lights": [
@@ -189,5 +192,7 @@
     "nudge2": [
       "Dissolve the steel with a negative. Then put back something lighter."
     ]
-  }
+  },
+  "department": "wet",
+  "route": "Enlarging / Exhibition \u2192"
 }

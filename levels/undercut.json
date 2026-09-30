@@ -5,7 +5,7 @@
   "film": {
     "neg": 2
   },
-  "hint": "A negative dissolves everything it touches, whole. Keep this one small.",
+  "hint": "Recover the weight inside its emulsion sleeve.",
   "room": {
     "x0": -6,
     "x1": 6,
@@ -43,7 +43,8 @@
         2.4
       ],
       "need": 1.0,
-      "label": 4.2
+      "label": 4.2,
+      "purpose": "Drying counterweight"
     }
   ],
   "props": [
@@ -58,7 +59,8 @@
         1.2,
         1.2,
         1.2
-      ]
+      ],
+      "label": "Archive case"
     }
   ],
   "lights": [
@@ -197,7 +199,8 @@
         {
           "exit": true
         }
-      ]
+      ],
+      "category": "rule"
     }
   ],
   "story": {
@@ -213,5 +216,7 @@
     "nudge2": [
       "Take the negative from far away so it comes out small, then develop it low on the pillar, well clear of the crate."
     ]
-  }
+  },
+  "department": "wet",
+  "route": "Enlarging / Exhibition \u2192"
 }

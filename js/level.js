@@ -6,7 +6,9 @@ import { DT, GRAVITY, DENSITY, UNDO_DEPTH } from './config.js';
 import { createPlayer, P, placePlayer } from './player.js';
 import { SFX } from './audio.js';
 import { createBoss, stepBoss, bossState, restoreBoss } from './boss.js';
-import { storyEvent } from './story.js';
+import { storyEvent, storyProgress } from './story.js';
+import { dressArchive, stepMachinery } from './archive.js';
+import { createInspection, stepInspection, inspectionState, restoreInspection } from './inspection.js';
 import { cardTexture } from './materials.js';
 import { dressRoom, doorFrame, glassFrame, ceilingPanel, dust, tray, plateVisual } from './dressing.js';
 
@@ -42,16 +44,18 @@ export function loadLevel(def, { keepUndo = false } = {}) {
   for (const p of def.props || []) {
     const [x, y, z] = p.pos, s = p.size;
     const q = new THREE.Quaternion().setFromAxisAngle(new V3(0, 1, 0), THREE.MathUtils.degToRad(p.rot || 0));
-    addProp(p.type, s, [x, y + s[1] / 2, z], [q.x, q.y, q.z, q.w]);
+    addProp(p.type, s, [x, y + s[1] / 2, z], [q.x, q.y, q.z, q.w], null, null, p.label);
   }
   for (const l of def.lights || []) addLight(l);
   for (const d of def.decor || []) addDecor(d);
   lightRoom(def.room);
   dressLevel(def);
+  dressArchive(def);
   if (def.boss) createBoss(def.boss);
+  if (def.inspection) createInspection(def.inspection);
   createPlayer(world);
   placePlayer(def.spawn.pos, def.spawn.yaw * Math.PI / 180);
-  if (!L.plates.length && !def.boss) openDoor(true);
+  if (!L.plates.length && !def.boss && !def.inspection) openDoor(true);
   G.roll.length = 0; G.selected = -1; G.filmMode = L.film.pos > 0 || !L.film.neg ? 'pos' : 'neg'; G.frameIdx = 0; G.aim = false;
   if (!keepUndo) G.undo.length = 0;
   world.step(); // lets scene queries see every collider straight away
@@ -110,8 +114,22 @@ function buildRoom(r) {
   const S = (a, b, mat = 'wall') => addBlock(a, b, mat);
   if (r.floor !== false) S([x0 - t, -t, z0 - t], [x1 + t, 0, z1 + t], 'floor');
   S([x0 - t, h, z0 - t], [x1 + t, h + t, z1 + t], 'ceil');
-  S([x0 - t, wb, z0], [x0, h, z1]);
-  S([x1, wb, z0], [x1 + t, h, z1]);
+  // Observation windows are real apertures, sealed by photograph-transparent glass.
+  for (const side of ['west', 'east']) {
+    const lo = side === 'west' ? x0 - t : x1, hi = lo + t;
+    const windows = (r.windows || []).filter(w => w.side === side).sort((a, b) => a.z - b.z);
+    let cursor = z0;
+    for (const w of windows) {
+      const a = w.z - (w.width || 3) / 2, b = w.z + (w.width || 3) / 2;
+      const low = w.low || 1.3, high = w.high || 3.6;
+      S([lo, wb, cursor], [hi, h, a]);
+      S([lo, wb, a], [hi, low, b]);
+      S([lo, high, a], [hi, h, b]);
+      S([lo + 0.2, low, a], [lo + 0.3, high, b], 'glass');
+      cursor = b;
+    }
+    S([lo, wb, cursor], [hi, h, z1]);
+  }
   S([x0 - t, wb, z1], [x1 + t, h, z1 + t]);
   const d = r.door, dx = d.x, dw = d.w || 2, dy = d.y || 0, dh = d.h || 2.6;
   S([x0 - t, wb, z0 - t], [dx - dw / 2, h, z0]);
@@ -232,6 +250,10 @@ function dressLevel(def) {
   const r = def.room, L = G.L;
   const avoid = [[r.x0, (r.z0 + r.z1) / 2], [r.x1, (r.z0 + r.z1) / 2]];
   for (const d of def.decor || []) if (d.kind === 'card') avoid.push([d.pos[0], d.pos[2]]);
+  for (const w of r.windows || []) {
+    const x = w.side === 'west' ? r.x0 : r.x1;
+    for (let z = w.z - (w.width || 3) / 2; z <= w.z + (w.width || 3) / 2; z += 0.5) avoid.push([x, z]);
+  }
   dressRoom(r, avoid);
   const i = G.order.indexOf(def.id);
   const label = i >= 0 ? [[`ROOM ${String(i + 1).padStart(2, '0')}`, 96], [def.name.toUpperCase(), 44, 700]] : [[def.name.toUpperCase(), 64]];
@@ -241,7 +263,7 @@ function dressLevel(def) {
 }
 
 // ---------- props ----------
-export function addProp(type, size, pos, quat, lin, ang) {
+export function addProp(type, size, pos, quat, lin, ang, label = null) {
   const L = G.L, R = G.R;
   const [sx, sy, sz] = size;
   const desc = R.RigidBodyDesc.dynamic()
@@ -256,7 +278,12 @@ export function addProp(type, size, pos, quat, lin, ang) {
   mesh.userData.ownMaterial = true;
   mesh.scale.set(sx, sy, sz);
   mesh.castShadow = mesh.receiveShadow = true;
-  const p = { id: ++L.propSeq, type, size: [sx, sy, sz], mass: propMass(type, size), body, collider, mesh, flash: 0, lastVy: 0 };
+  const p = { id: ++L.propSeq, label, type, size: [sx, sy, sz], mass: propMass(type, size), body, collider, mesh, flash: 0, lastVy: 0 };
+  if (label) {
+    const tag = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 0.22), new THREE.MeshBasicMaterial({ map: cardTexture(label), side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+    tag.position.set(0, 0.12, 0.502);
+    tag.userData.ownMaterial = true; tag.userData.ownMap = true; mesh.add(tag);
+  }
   mesh.userData.kind = 'prop'; mesh.userData.prop = p;
   L.colliders.set(collider.handle, { kind: 'prop', ref: p });
   L.group.add(mesh); L.rayMeshes.push(mesh); L.props.push(p);
@@ -269,7 +296,7 @@ export function removeProp(p) {
   L.colliders.delete(p.collider.handle);
   L.world.removeRigidBody(p.body);
   L.group.remove(p.mesh);
-  p.mesh.material.dispose();
+  p.mesh.traverse(o => { if (o !== p.mesh && o.geometry) o.geometry.dispose(); if (o.userData.ownMap) o.material.map?.dispose(); if (o.userData.ownMaterial) o.material.dispose(); });
   L.props.splice(L.props.indexOf(p), 1);
   L.rayMeshes.splice(L.rayMeshes.indexOf(p.mesh), 1);
 }
@@ -315,7 +342,7 @@ function addPlate(def) {
   sprite.scale.set(1.6, 0.8, 1);
   sprite.position.set(x, y + (def.label ?? 2.5), z);
   L.group.add(mesh, sprite); L.rayMeshes.push(mesh);
-  const p = { need: def.need, max: def.max ?? null, load: 0, shown: -1, on: false, collider, mesh, mat, canvas, tex, baseY: mesh.position.y, lo: min, hi: max };
+  const p = { def, need: def.need, max: def.max ?? null, load: 0, shown: -1, on: false, collider, mesh, mat, canvas, tex, baseY: mesh.position.y, lo: min, hi: max };
   L.colliders.set(collider.handle, { kind: 'plate', ref: p });
   L.plates.push(p);
   drawPlate(p);
@@ -329,11 +356,13 @@ function drawPlate(p) {
   g.clearRect(0, 0, 256, 128);
   g.fillStyle = '#120f0dd9'; g.fillRect(4, 4, 248, 120);
   g.strokeStyle = on ? '#8fc27a' : '#d8452f'; g.lineWidth = 4; g.strokeRect(4, 4, 248, 120);
-  g.fillStyle = '#efe6d2'; g.font = '700 20px ui-monospace, Consolas, monospace'; g.textAlign = 'center';
-  g.fillText(p.max != null ? `LOAD ${fmtT(p.need)}–${fmtT(p.max)} t` : `LOAD ≥ ${fmtT(p.need)} t`, 128, 34);
+  g.fillStyle = '#efe6d2'; g.font = '700 11px ui-monospace, Consolas, monospace'; g.textAlign = 'center';
+  g.fillText((p.def.purpose || 'ARCHIVE SCALE').toUpperCase(), 128, 17);
+  g.font = '700 20px ui-monospace, Consolas, monospace';
+  g.fillText(p.max != null ? `LOAD ${fmtT(p.need)}–${fmtT(p.max)} t` : `LOAD ≥ ${fmtT(p.need)} t`, 128, 40);
   g.font = '700 38px ui-monospace, Consolas, monospace';
   g.fillStyle = on ? '#8fc27a' : over ? '#f0a04f' : '#efe6d2';
-  g.fillText(`${fmtT(p.load)} t`, 128, 78);
+  g.fillText(`${fmtT(p.load)} t`, 128, 83);
   const top = p.max ?? p.need;
   g.fillStyle = '#3a322c'; g.fillRect(24, 94, 208, 14);
   g.fillStyle = on ? '#8fc27a' : over ? '#f0a04f' : '#d8452f'; g.fillRect(24, 94, 208 * Math.min(1, p.load / (top * (p.max != null ? 1.25 : 1))), 14);
@@ -380,6 +409,7 @@ export function stepWorld() {
   const L = G.L;
   L.world.step();
   L.time += DT;
+  stepInspection();
   stepBoss(); // before props record this tick's velocity: it needs to see what was falling
   for (const p of L.props.slice()) {
     const v = p.body.linvel().y;
@@ -395,7 +425,7 @@ export function stepWorld() {
   for (const p of L.plates) {
     p.load = plateLoad(p);
     const on = p.load >= p.need - 1e-6 && (p.max == null || p.load <= p.max + 1e-6);
-    if (on && !p.on) { if (!G.headless) SFX.plate(); storyEvent('plate'); }
+    if (on && !p.on) { storyProgress(`plate:${L.plates.indexOf(p)}`); if (!G.headless) SFX.plate(); storyEvent('plate'); }
     p.on = on;
     if (!on) all = false;
     p.mat.emissive.setHex(on ? 0x8fc27a : 0xd8452f);
@@ -403,7 +433,8 @@ export function stepWorld() {
     const shown = Math.round(p.load * 10) * 2 + (on ? 1 : 0);
     if (shown !== p.shown) { p.shown = shown; drawPlate(p); }
   }
-  if (all && !L.boss) openDoor(G.headless); // the boss opens its own door
+  stepMachinery();
+  if ((all || L.inspection?.complete) && !L.boss) openDoor(G.headless); // the boss opens its own door
   const d = L.door;
   if (d.open && d.t < 1) {
     d.t = Math.min(1, d.t + DT / 1.1);
@@ -425,15 +456,15 @@ export function snapshot() {
   return {
     props: L.props.map(p => {
       const t = p.body.translation(), r = p.body.rotation(), v = p.body.linvel(), w = p.body.angvel();
-      return { type: p.type, size: p.size.slice(), pos: [t.x, t.y, t.z], quat: [r.x, r.y, r.z, r.w], lin: [v.x, v.y, v.z], ang: [w.x, w.y, w.z] };
+      return { label: p.label, type: p.type, size: p.size.slice(), pos: [t.x, t.y, t.z], quat: [r.x, r.y, r.z, r.w], lin: [v.x, v.y, v.z], ang: [w.x, w.y, w.z] };
     }),
     erased: L.statics.filter(s => s.erased).map(s => s.id),
     door: { open: L.door.open, t: L.door.t },
     film: { ...L.film },
     roll: G.roll.map(ph => ({ ...ph })),
     filmMode: G.filmMode,
-    player: { pos: P.pos.toArray(), vel: P.vel.toArray(), yaw: P.yaw, pitch: P.pitch },
-    boss: bossState(),
+    player: { pos: P.pos.toArray(), vel: P.vel.toArray(), yaw: P.yaw, pitch: P.pitch, coyote: P.coyote, jumpBuffer: P.jumpBuffer, jumpHeld: P.jumpHeld },
+    boss: bossState(), inspection: inspectionState(),
   };
 }
 export function pushUndo() {
@@ -443,7 +474,7 @@ export function pushUndo() {
 export function restore(s) {
   const L = G.L;
   for (const p of L.props.slice()) removeProp(p);
-  for (const p of s.props) addProp(p.type, p.size, p.pos, p.quat, p.lin, p.ang);
+  for (const p of s.props) addProp(p.type, p.size, p.pos, p.quat, p.lin, p.ang, p.label);
   for (const st of L.statics) { if (s.erased.includes(st.id)) eraseStatic(st); else if (st.erased) restoreStatic(st); }
   const d = L.door;
   d.open = s.door.open; d.t = s.door.t;
@@ -454,9 +485,12 @@ export function restore(s) {
   G.selected = -1; G.filmMode = s.filmMode;
   placePlayer(s.player.pos, s.player.yaw, s.player.pitch);
   P.vel.fromArray(s.player.vel);
+  P.coyote = s.player.coyote || 0; P.jumpBuffer = s.player.jumpBuffer || 0; P.jumpHeld = !!s.player.jumpHeld;
   restoreBoss(s.boss);
+  restoreInspection(s.inspection);
   L.world.step();
   for (const p of L.props) syncProp(p);
   G.scene.updateMatrixWorld(true);
   emit('rollChanged');
 }
+

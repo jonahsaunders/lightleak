@@ -129,10 +129,11 @@ function renderLevel() {
       <span class="${x.outcome === 'finished' ? 'ok' : 'bad'}">${esc(x.outcome)}</span>
       <span>${new Date(x.started).toLocaleString()}</span><span>${fmtTime(x.ticks)}</span>
       <span>${count(x, 'photo', 'negative')} shots · ${count(x, 'develop', 'dissolve')} developed · ${count(x, 'undo')} undos</span>
-      <button class="btn ghost" data-watch="${x.id}">Watch${x.hash !== hash ? ' (level changed)' : ''}</button></div>`).join('') || '<div style="color:var(--dim)">No attempts recorded for this room yet.</div>';
+      <button class="btn ghost" data-watch="${x.id}">Watch${x.hash !== hash ? ' (level or movement changed)' : ''}</button></div>`).join('') || '<div style="color:var(--dim)">No attempts recorded for this room yet.</div>';
   $('rv-sessions').querySelectorAll('[data-watch]').forEach(b => b.onclick = () => {
     const x = sessions.find(y => y.id === b.dataset.watch);
     closeReview();
     api.watch({ ...G.defs[x.level], solution: { demo: x.demo } }, () => openReview(x.level));
   });
 }
+

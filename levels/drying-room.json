@@ -2,7 +2,7 @@
   "id": "drying-room",
   "name": "Drying Room",
   "film": {},
-  "hint": "WASD to move, Space to jump. Esc pauses.",
+  "hint": "WASD: move \u00b7 Space: jump \u00b7 Esc: pause",
   "room": {
     "x0": -5,
     "x1": 5,
@@ -11,7 +11,19 @@
     "h": 5,
     "door": {
       "x": 0
-    }
+    },
+    "windows": [
+      {
+        "side": "east",
+        "z": -4,
+        "width": 3,
+        "low": 1.3,
+        "high": 3.8,
+        "label": "STORAGE / WEIGHING",
+        "color": 12363639,
+        "enlarger": false
+      }
+    ]
   },
   "blocks": [],
   "props": [],
@@ -140,19 +152,19 @@
   },
   "story": {
     "start": [
-      "Oh. You've come off the line.",
-      "The clips are old. It happens more than it should.",
-      "You're a print, item sixteen-oh-four-twelve. Prints hang until they're dry, and then they're filed.",
-      "But since you're up, you may as well be useful. The archive camera needs someone to hold it.",
-      "Through the door, please. Mind the drips."
+      "One of Wren's prints has come off the line.",
+      "Please take your time. The floor is wet, and your edges haven't dried.",
+      "The storage shutter is ahead. I need help moving things I can only look at."
     ],
     "nudge": [
-      "The door is the tall thing with the red light over it. I'm told it's intuitive."
+      "Follow the red safelight over the open storage door."
     ]
   },
   "solution": [
     {
       "exit": true
     }
-  ]
+  ],
+  "department": "drying",
+  "route": "Storage / Weighing \u2192"
 }

@@ -108,6 +108,7 @@ export function startAmbience(kind = 'archive') {
   if (!actx) return;
   stopAmbience();
   mood = kind;
+  const ambienceLevel = kind === 'exhibition' ? 0.45 : kind === 'restoration' ? 0.7 : 1;
   const t = actx.currentTime;
   const out = actx.createGain(); out.gain.setValueAtTime(0.0001, t); out.gain.exponentialRampToValueAtTime(1, t + 2);
   out.connect(bus.ambience);
@@ -115,9 +116,22 @@ export function startAmbience(kind = 'archive') {
   // room tone: filtered noise and a faint mains hum from the safelights
   const src = actx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
   const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = kind === 'outside' ? 1400 : 320;
-  const ng = actx.createGain(); ng.gain.value = kind === 'outside' ? 0.05 : 0.07;
+  const ng = actx.createGain(); ng.gain.value = (kind === 'outside' ? 0.05 : 0.07) * ambienceLevel;
   src.connect(lp).connect(ng).connect(out); src.start();
   nodes.push(src);
+  // Departments have their own equipment, never borrowed game audio.
+  if (kind === 'wet' || kind === 'drying') {
+    const pump = actx.createOscillator(); pump.frequency.value = kind === 'wet' ? 72 : 180; pump.type = 'triangle';
+    const gain = actx.createGain(); gain.gain.value = kind === 'wet' ? 0.013 : 0.006;
+    const lfo = actx.createOscillator(); lfo.frequency.value = kind === 'wet' ? 0.8 : 0.12;
+    const mod = actx.createGain(); mod.gain.value = gain.gain.value * 0.6;
+    lfo.connect(mod).connect(gain.gain); pump.connect(gain).connect(out);
+    pump.start(); lfo.start(); nodes.push(pump, lfo);
+  }
+  if (kind === 'restoration' || kind === 'exhibition') {
+    const fan = actx.createOscillator(); fan.type = 'sine'; fan.frequency.value = kind === 'restoration' ? 240 : 95;
+    const gain = actx.createGain(); gain.gain.value = 0.004; fan.connect(gain).connect(out); fan.start(); nodes.push(fan);
+  }
   if (kind !== 'outside') for (const [f, g] of [[50, 0.018], [100, 0.01], [150, 0.004]]) {
     const o = actx.createOscillator(); o.frequency.value = f;
     const og = actx.createGain(); og.gain.value = g;
@@ -162,3 +176,4 @@ function playChord(i) {
   if (mood === 'enlarger') for (let k = 0; k < 8; k++) tone(55, 50, 0.3, 'sine', 0.06, k * (len / 8), 'music', 0.02);
   musicTimer = setTimeout(() => playChord(i + 1), len * 1000);
 }
+

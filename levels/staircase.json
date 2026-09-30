@@ -5,7 +5,7 @@
   "film": {
     "pos": 1
   },
-  "hint": "Someone left a model staircase in the case. Photograph all of it.",
+  "hint": "Reach the restoration gallery.",
   "room": {
     "x0": -7,
     "x1": 7,
@@ -15,7 +15,19 @@
     "door": {
       "x": 0,
       "y": 3.6
-    }
+    },
+    "windows": [
+      {
+        "side": "east",
+        "z": -5,
+        "width": 3,
+        "low": 1.3,
+        "high": 3.8,
+        "label": "STAFF RESTORATION",
+        "color": 8105122,
+        "enlarger": false
+      }
+    ]
   },
   "blocks": [
     {
@@ -83,7 +95,8 @@
         1,
         0.4,
         1
-      ]
+      ],
+      "label": "Archive case"
     },
     {
       "type": "crate",
@@ -96,7 +109,8 @@
         1,
         0.8,
         1
-      ]
+      ],
+      "label": "Archive case"
     },
     {
       "type": "crate",
@@ -109,7 +123,8 @@
         1,
         1.2,
         1
-      ]
+      ],
+      "label": "Archive case"
     }
   ],
   "lights": [
@@ -230,14 +245,19 @@
   ],
   "story": {
     "start": [
-      "Someone built this model for a display about the building.",
-      "I kept the model. The building I'm less sure about."
+      "Wren made that model when the stairs were condemned.",
+      "I kept it because she built it. Perhaps you can give it a purpose again."
     ],
     "nudge": [
       "That model is a staircase. The ledge would like a staircase."
     ],
     "nudge2": [
       "Photograph all three steps at once, then develop them against the ledge from far enough back that they come out big."
+    ],
+    "door": [
+      "The staff restoration gallery is beyond this landing. The mounts have been empty for years."
     ]
-  }
+  },
+  "department": "restoration",
+  "route": "Wet Processing \u2192"
 }

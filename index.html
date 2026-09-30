@@ -38,12 +38,12 @@
   #prompt { position: absolute; left: 50%; top: calc(50% + 22px); transform: translateX(-50%); font: 600 13px var(--mono); white-space: nowrap; text-shadow: 0 1px 2px #000; }
   #prompt .bad { color: var(--bad); }
   #prompt .ok { color: var(--ok); }
-  #prompt { text-align: center; }
+  #prompt { text-align: center; max-width: 92vw; white-space: normal; width: max-content; }
   #prompt .sub { font-size: 11px; color: #efe6d2cc; margin-top: 2px; }
   #prompt .snap { color: #0b0807; background: var(--ok); padding: 0 5px; border-radius: 2px; }
 
   /* the viewfinder is 72% of the screen's height and 4:3; photo.js assumes the same */
-  #vf { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); height: 72vh; width: 96vh; max-width: 96vw; }
+  #vf { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); height: 72vh; width: 96vh; }
   #vf::before { content: ""; position: absolute; inset: -100vmax; border: 100vmax solid #0009; }
   #vf .c { position: absolute; width: 28px; height: 28px; border: 2px solid var(--paper); }
   #vf .c.tl { left: 0; top: 0; border-right: 0; border-bottom: 0; }
@@ -107,8 +107,8 @@
   #print { position: absolute; left: 50%; top: 46%; width: min(420px, 60vw); transform: translate(-50%, -50%) rotate(-2deg); background: #efe6d2; padding: 14px 14px 0; box-shadow: 0 20px 60px #000c; z-index: 2; opacity: 0; }
   #print img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; background: #fff; }
   #print .cap { font: 700 13px var(--mono); letter-spacing: .14em; color: #3b332b; text-align: center; padding: 12px 0 14px; }
-  #print.go { animation: printIn 2.3s ease-out both; }
-  #print.go img { animation: develop 1.9s ease-out .25s both; }
+  #print.go { animation: printIn 1.2s ease-out both; }
+  #print.go img { animation: develop .85s ease-out .15s both; }
   @keyframes printIn { 0% { opacity: 0; transform: translate(-50%, -40%) rotate(4deg); } 18% { opacity: 1; transform: translate(-50%, -50%) rotate(-2deg); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -52%) rotate(-2deg); } }
   #fade.on { opacity: 1; }
 
@@ -289,6 +289,7 @@
     <div class="msg" id="menu-msg" hidden></div>
     <div class="row">
       <button class="btn" id="play">Start</button>
+      <button class="btn ghost" id="ask-hint" hidden>Hint (H / R3)</button>
       <button class="btn ghost" id="restart" hidden>Restart frame</button>
       <button class="btn ghost" id="to-editor" hidden>Edit this level</button>
       <button class="btn ghost" id="to-review">Playtest review</button>
@@ -349,3 +350,4 @@
 <script type="module" src="js/main.js"></script>
 </body>
 </html>
+

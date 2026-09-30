@@ -6,7 +6,7 @@
     "pos": 2,
     "neg": 1
   },
-  "hint": "Everything you know. There is something behind the emulsion.",
+  "hint": "Find a way to the enlarging room.",
   "room": {
     "x0": -7,
     "x1": 7,
@@ -83,7 +83,8 @@
         2,
         2
       ],
-      "need": 2
+      "need": 2,
+      "purpose": "Drying counterweight"
     }
   ],
   "props": [
@@ -98,7 +99,8 @@
         1,
         0.4,
         1
-      ]
+      ],
+      "label": "Archive case"
     },
     {
       "type": "crate",
@@ -111,7 +113,8 @@
         1,
         0.8,
         1
-      ]
+      ],
+      "label": "Archive case"
     },
     {
       "type": "crate",
@@ -124,7 +127,8 @@
         1,
         1.2,
         1
-      ]
+      ],
+      "label": "Archive case"
     },
     {
       "type": "crate",
@@ -137,7 +141,8 @@
         0.7,
         0.7,
         0.7
-      ]
+      ],
+      "label": "Archive case"
     }
   ],
   "lights": [
@@ -329,5 +334,7 @@
     "nudge2": [
       "Open it with a negative. Photograph everything inside at once, and build yourself a way up."
     ]
-  }
+  },
+  "department": "wet",
+  "route": "Enlarging / Exhibition \u2192"
 }

@@ -28,7 +28,7 @@ export function settingsPanel(el) {
       ${range('sens', 'Mouse sensitivity', 0.3, 2.5, 0.05)}
       ${range('fov', 'Field of view', 60, 100, 1)}
       ${check('invertY', 'Invert look')}
-      <div class="set-note">Gamepads work too: left stick move, right stick look, LT camera, RT shoot or develop, bumpers change photo or frame, A jump, B undo, X film, D-pad turn photo.</div>
+      <div class="set-note">Gamepads work too: left stick move, right stick look, LT camera, RT shoot or develop, bumpers change photo or frame, A jump, B undo, X film, D-pad turn photo, R3 hint.</div>
     </div>
     <div class="set-col"><div class="set-h">SOUND</div>
       ${range('master', 'Master', 0, 1, 0.05)}${range('sfx', 'Effects', 0, 1, 0.05)}${range('voice', 'Voice', 0, 1, 0.05)}${range('music', 'Music', 0, 1, 0.05)}${range('ambience', 'Room tone', 0, 1, 0.05)}
@@ -52,3 +52,4 @@ function fmt(k) {
   if (k === 'sens') return v.toFixed(2);
   return `${Math.round(v * 100)}%`;
 }
+

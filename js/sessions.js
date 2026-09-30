@@ -14,8 +14,9 @@ export function setDev(d) { dev = d; }
 
 // A fingerprint of the level's layout, so replays can warn if the level has changed since.
 export function levelHash(def) {
-  const { solution, mustFail, story, hint, ...layout } = def;
-  const s = JSON.stringify(layout);
+  const { solution, mustFail, mustPass, story, hint, ...layout } = def;
+  // Revision 2 includes buffered jumps; old recordings need an explicit changed warning.
+  const s = JSON.stringify({ simulation: 2, layout });
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
   return (h >>> 0).toString(36);
@@ -96,3 +97,4 @@ export function importSessions(list) {
   } catch (e) { return false; }
 }
 export function clearLocalSessions() { try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ } }
+

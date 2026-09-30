@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/jonahsaunders/lightleak/releases/latest"><img src="https://img.shields.io/github/v/release/jonahsaunders/lightleak?label=download&color=d8452f&style=flat-square" alt="Latest release"></a>
   <img src="https://img.shields.io/badge/play-Windows%20%C2%B7%20browser-3a322c?style=flat-square" alt="Windows and browser">
-  <img src="https://img.shields.io/badge/levels-18-3a322c?style=flat-square" alt="18 levels">
+  <img src="https://img.shields.io/badge/levels-21-3a322c?style=flat-square" alt="21 levels">
   <img src="https://img.shields.io/badge/built%20with-three.js%20%C2%B7%20Rapier-3a322c?style=flat-square" alt="Built with three.js and Rapier">
 </p>
 
@@ -58,7 +58,7 @@ You wake up on the floor of a drying room, a print that came loose from the line
     <td width="50%"><img src="docs/screenshots/daylight.jpg" alt="A long corridor ending in bright daylight"></td>
   </tr>
   <tr>
-    <td>Eighteen rooms: a prologue, fifteen puzzles in three chapters, a final fight, and a way out.</td>
+    <td>Twenty-one rooms: a prologue, fifteen puzzles, a counterweight gallery, a safe light-inspection lesson, a changed return to the gallery, a final fight, and a way out.</td>
     <td>Every texture is painted in code and every sound is synthesised. There are no asset files at all.</td>
   </tr>
 </table>
@@ -74,6 +74,7 @@ You wake up on the floor of a drying room, a print that came loose from the line
 | <kbd>Q</kbd><kbd>E</kbd> | D-pad ←→ | Turn the photo you're holding |
 | <kbd>T</kbd> | X | Switch between film and negative |
 | <kbd>Z</kbd> / <kbd>X</kbd> / <kbd>R</kbd> | B / Back | Undo / throw a photo away / restart the room |
+| <kbd>H</kbd> | R3 | Progressive hint (also available from pause) |
 | <kbd>Esc</kbd> / <kbd>F2</kbd> | Start | Pause / level editor |
 
 The title screen has settings for sensitivity, field of view, invert look, five volume levels, reduced flashing, screen shake and subtitle size, plus High/Medium/Low graphics.
@@ -81,9 +82,12 @@ The title screen has settings for sensitivity, field of view, invert look, five 
 ## How it plays
 
 - **Fair by design.** Undo steps back through every shot. Falling puts you back to just after your last action. Nothing you do can leave a room unsolvable.
-- **Stuck?** After a while without progress, the Curator notices and drops an in-character hint, then a plainer one.
+- **Stuck?** H, R3, or the pause-menu Hint button asks for a gentle hint, then a concrete one. The Curator also notices inactivity and repeated failed attempts; taking the same photograph repeatedly no longer postpones help. Hints are recorded in playtest sessions.
 - **Physics you can read.** Stacks settle, overhangs tip, and weight matters: plates count everything resting on them, and some want a range, not just a minimum.
-- **Between rooms,** the room you just solved develops into a print.
+- **Between rooms,** the room you just solved develops into a print. Department signs, observation windows, and a shared overhead service rail connect the archive. The service gallery returns later with released portrait mounts and a changed atmosphere.
+- **Machinery you can follow.** Copper lines connect scales to moving counterweights and shutters. Storage, restoration, exhibition, drying, and wet processing each have a distinct equipment sound.
+- **Learn before danger.** The gallery demonstrates counterweights; a harmless inspection lamp teaches the same solid-cover/glass rule used by the Enlarger. The final fight combines these with the negative-film lessons.
+- **Movement forgiveness.** Jump presses are buffered for 120 ms; a 100 ms grace period allows a jump just after stepping off a ledge. Narrow windows letterbox the game to preserve the camera framing.
 
 ---
 
@@ -106,7 +110,8 @@ npm run desktop
 | `npm start` | Serves the game at http://127.0.0.1:5178 |
 | `npm run dev` | Same, and the editor saves levels and playtests save sessions as files |
 | `npm run desktop` | Runs it as a desktop app (Electron) |
-| `npm test` | Plays every level's solution headless: 18 solutions, 7 blocked shortcuts, and a z-fighting audit per level |
+| `npm test` | Renderer-free checks using the live simulation: 21 solutions, 2 accepted alternatives, 9 blocked bypasses, 21 geometry audits, and hint/undo/light checks |
+| `npm run test:desktop` | The same solution and geometry suite inside Electron, with the real renderer/materials |
 | `npm run shots` | Re-renders the screenshots in this README |
 | `npm run web` | Builds the static web version into `build/web` and `build/lightleak-web.zip` |
 | `npm run dist` | Builds the Windows installer and portable `.exe` into `dist/` (`dist:mac` on a Mac) |
@@ -114,6 +119,9 @@ npm run desktop
 If npm holds back Electron's install script, run `node node_modules/electron/install.js` once.
 
 ### Playtesting
+
+`npm test` requires only Node and the vendored runtimes. It uses real Rapier physics and Three geometry with canvas drawing omitted; it does not verify rendered pixels or audio. `npm run test:desktop` exercises the real browser setup. The movement changes can invalidate older input recordings; export those sessions before replacing them, and record fresh solutions for custom levels.
+
 
 The most useful thing you can do with this game is watch people play it. Every attempt at a room is recorded automatically, including the full input stream, which replays exactly. **Playtest review** on the title screen shows each room's finish rate, median time, undos, falls, restarts and where people got stuck, over a top-down heatmap. **Watch** replays any attempt, and testers can **Export** their sessions for you to **Import**.
 
@@ -142,7 +150,7 @@ Press **F2** in the game, or choose "Edit this level" from the pause menu.
 
 Levels are JSON in `levels/`, in play order in `levels/index.json`: a `room` (walls, ceiling, and a door in the north wall), `blocks` (`mat`: ledge, wall, floor, dark, deep, glass, emulsion), `props` (crate, steel, plank), `plates` (`need`, optional `max`), `lights`, `decor` (benches, drying lines, index cards), `spawn`, `film` (`pos`, `neg`), `wide`, and `story`: the Curator's lines by event, including `nudge` and `nudge2` hints.
 
-Each level carries a `solution`, either scripted steps (`walk`, `shoot`, `develop`, `wait`, `exit`) or a recorded `demo`, and can list `mustFail` shortcuts that must *not* finish it, such as jumping the Overhang gap without a plank.
+Each level carries a `solution`, either scripted steps (`walk`, `shoot`, `develop`, `wait`, `exit`) or a recorded `demo`, and can list `mustPass` alternative solutions plus `mustFail` shortcuts that must *not* finish it, such as jumping the Overhang gap without a plank.
 
 </details>
 
@@ -162,12 +170,13 @@ Each level carries a `solution`, either scripted steps (`walk`, `shoot`, `develo
 
 | Path | What's there |
 | --- | --- |
-| `js/main.js` | Boot, the fixed-step loop, input, menus, level flow |
+| `js/main.js`, `js/actions.js`, `js/simulation.js` | Boot, shared camera actions and fixed-step simulation, input, menus, level flow |
 | `js/level.js`, `js/dressing.js` | Building levels, physics bodies, plates, doors, undo; architectural detail |
 | `js/photo.js` | Framing, taking photos, placement, developing, negatives |
 | `js/player.js` | The character controller |
 | `js/hud.js`, `js/viewmodel.js`, `js/fx.js` | Viewfinder and readouts; the camera in your hands; develop and dissolve effects |
-| `js/story.js`, `js/boss.js` | The Curator's lines and nudges; the final fight |
+| `js/story.js`, `js/hints.js`, `js/boss.js` | The Curator's dialogue, progressive help and active-failure detection; the final fight |
+| `js/archive.js`, `js/inspection.js`, `js/exposure.js` | Departments, observation windows, counterweights, and the shared light/cover lesson |
 | `js/driver.js`, `js/audit.js` | Solution playback and the test runner; the z-fighting audit |
 | `js/sessions.js`, `js/review.js` | Playtest recording and the review screen |
 | `js/editor.js`, `js/settings.js`, `js/shots.js` | The level editor; player settings; README screenshots |
@@ -188,7 +197,6 @@ Run `npm run web` and upload `build/lightleak-web.zip` as an HTML project with "
 
 - It needs playtesting by real people. The scripted solutions prove every room can be solved, not that it's fun or fair; the recording and review tools are there to find out.
 - Mouse feel, jump height and reach were tuned by numbers, not by hand.
-- On a window narrower than 4:3, the drawn capture frame is slightly smaller than what the camera takes in.
 - Room lights other than the Curator's have no shadows, so a lamp can light the far side of a thin wall.
 
 </details>
@@ -198,3 +206,4 @@ Run `npm run web` and upload `build/lightleak-web.zip` as an HTML project with "
 The idea of a camera that copies objects into photos was explored in a cancelled Valve prototype. Game mechanics aren't protected by copyright, but specific expression is, so this project is written from scratch and takes nothing from that work or from the Portal series: no Valve code, assets, names, characters, setting, sounds or leaked material. The setting, story, characters, dialogue, puzzles, art direction, UI and name are original. The look is a darkroom (warm concrete, dark steel, red safelights), deliberately unlike Portal's white panels and orange and blue, and the story is about photographs and copies rather than testing. It follows a genre shape many games share (a lone survivor in a facility, a guiding voice with its own agenda, a final confrontation), and none of Portal's specifics: no sarcastic AI, cake, turrets or cubes.
 
 Textures are drawn at runtime, sounds are synthesised, and the icon is generated by `tools/icon.js`. Third-party code (three.js and Rapier) is listed in [LICENSES.md](LICENSES.md). If you take this further commercially, don't market it by reference to Valve's project or Portal, and check that the name "Lightleak" is clear to trademark where you'll sell it.
+
